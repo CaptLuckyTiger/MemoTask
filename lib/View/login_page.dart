@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../ViewModel/LoginViewModel.dart';
+import '../View/home_page.dart'; // Importe a classe Home do arquivo home_page.dart
+import '../ViewModel/login_view_model.dart';
 
 class LoginPage extends StatelessWidget {
   final LoginViewModel viewModel = LoginViewModel();
@@ -12,7 +12,7 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Memo Task'),
+        title: const Text('Página de Login'),
       ),
       body: Container(
         color: const Color.fromARGB(255, 255, 255, 255),
@@ -48,16 +48,15 @@ class LoginPage extends StatelessWidget {
                       final loginSuccessful =
                           await viewModel.login(username, password);
                       if (loginSuccessful) {
+                        // Navegue para a tela Home do arquivo home_page.dart
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ),
+                          MaterialPageRoute(builder: (context) => Home()),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Incorrect username or password'),
+                            content: Text('Usuário ou senha incorretos'),
                           ),
                         );
                       }
@@ -67,7 +66,7 @@ class LoginPage extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Implement lost password logic here
+                    // Lógica de recuperação de senha
                   },
                   child: const Text('Esqueceu a senha?'),
                 ),
@@ -75,20 +74,6 @@ class LoginPage extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home Screen'),
-      ),
-      body: Center(
-        child: Text('Welcome to the Home Screen!'),
       ),
     );
   }
