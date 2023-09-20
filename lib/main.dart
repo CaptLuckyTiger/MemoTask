@@ -16,13 +16,13 @@ class MyApp extends StatelessWidget {
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'ToDo App',
-      home: Home(),
+      title: 'MemoTask',
+      home: const Home(),
 
       initialRoute: '/login', //Rota incial login aparecera primeiro.
       routes: {
         '/login': (context) => LoginPage(),
-        '/home': (context) => Home(),
+        '/home': (context) => const Home(),
       },
     );
   }
