@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class LoginViewModel {
   String? validateUsername(String? value) {
     if (value == null || value.isEmpty) {

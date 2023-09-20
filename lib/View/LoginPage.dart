@@ -25,7 +25,7 @@ class LoginPage extends StatelessWidget {
               children: <Widget>[
                 TextFormField(
                   controller: _usernameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Usuário',
                   ),
                   validator: viewModel.validateUsername,
@@ -34,7 +34,7 @@ class LoginPage extends StatelessWidget {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Senha',
                   ),
                   validator: viewModel.validatePassword,
@@ -48,16 +48,11 @@ class LoginPage extends StatelessWidget {
                       final loginSuccessful =
                           await viewModel.login(username, password);
                       if (loginSuccessful) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ),
-                        );
+                        Navigator.pushReplacementNamed(context, '/home');
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Incorrect username or password'),
+                          const SnackBar(
+                            content: Text('Usuario ou senha incorreta'),
                           ),
                         );
                       }
@@ -67,7 +62,7 @@ class LoginPage extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Implement lost password logic here
+                    // falta a implementação da esquceu a senha
                   },
                   child: const Text('Esqueceu a senha?'),
                 ),
@@ -75,20 +70,6 @@ class LoginPage extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home Screen'),
-      ),
-      body: Center(
-        child: Text('Welcome to the Home Screen!'),
       ),
     );
   }
