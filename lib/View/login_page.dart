@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../ViewModel/LoginViewModel.dart';
+import '../ViewModel/login_view_model.dart';
 
 class LoginPage extends StatelessWidget {
   final LoginViewModel viewModel = LoginViewModel();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {

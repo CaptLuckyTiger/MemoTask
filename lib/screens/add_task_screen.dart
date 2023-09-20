@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AddTaskScreen extends StatefulWidget {
+  const AddTaskScreen({super.key});
+
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
 }
@@ -14,20 +16,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Adicionar Tarefa'),
+        title: const Text('Adicionar Tarefa'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: _taskController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   hintText: 'Titulo da tarefa',
                   //errorText: 'O nome não pode ser vazio',
                   border: OutlineInputBorder()),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
           ],
         ),
       ),
@@ -38,8 +40,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             Navigator.pop(context, newTask);
           }
         },
-        label: Text('Salvar'),
-        icon: Icon(Icons.save),
+        label: const Text('Salvar'),
+        icon: const Icon(Icons.save),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

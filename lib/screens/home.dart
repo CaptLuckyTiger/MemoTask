@@ -36,7 +36,7 @@ class _HomeState extends State<Home> {
             _currentIndex = index;
           });
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Tarefas',
@@ -53,15 +53,16 @@ class _HomeState extends State<Home> {
               onPressed: () async {
                 final newTask = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddTaskScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const AddTaskScreen()),
                 );
 
                 if (newTask != null) {
                   _addToDoItem(newTask);
                 }
               },
-              child: Icon(Icons.add),
               elevation: 10,
+              child: const Icon(Icons.add),
             )
           : null, // Remova o botão flutuante da tela de tarefas
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -74,7 +75,7 @@ class _HomeState extends State<Home> {
       return Stack(
         children: [
           Container(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 20,
               vertical: 15,
             ),
@@ -85,11 +86,11 @@ class _HomeState extends State<Home> {
                   child: ListView(
                     children: [
                       Container(
-                        margin: EdgeInsets.only(
+                        margin: const EdgeInsets.only(
                           top: 50,
                           bottom: 20,
                         ),
-                        child: Text(
+                        child: const Text(
                           'Tarefas',
                           style: TextStyle(
                             fontSize: 30,
@@ -157,14 +158,14 @@ class _HomeState extends State<Home> {
 
   Widget searchBox() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
       ),
       child: TextField(
         onChanged: (value) => _runFilter(value),
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           contentPadding: EdgeInsets.all(0),
           prefixIcon: Icon(
             Icons.search,
@@ -188,12 +189,12 @@ class _HomeState extends State<Home> {
       backgroundColor: tdBGColor,
       elevation: 0,
       title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Icon(
+        const Icon(
           Icons.menu,
           color: tdBlack,
           size: 30,
         ),
-        Container(
+        SizedBox(
           height: 40,
           width: 40,
           child: ClipRRect(
