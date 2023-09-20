@@ -20,3 +20,6 @@ Implentação completas  autor Antony : Funções referentes as telas inciais.
 
 
 Atualização BUG consertado e resolvido.
+
+-> Calendario ainda não implementado.
+-> Menu no homem não implementado.
