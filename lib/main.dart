@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'View/login_page.dart';
+import './screens/home.dart';
+import 'View/LoginPage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,11 +13,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+        const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Lista de Tarefas',
-      home: LoginPage(),
+      title: 'MemoTask',
+      home: const Home(),
+
+      initialRoute: '/login', //Rota incial login aparecera primeiro.
+      routes: {
+        '/login': (context) => LoginPage(),
+        '/home': (context) => const Home(),
+      },
     );
   }
 }
