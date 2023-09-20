@@ -15,7 +15,7 @@ class _HomeState extends State<Home> {
   final todosList = ToDo.todoList();
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
-  int _currentIndex = 0; // Adicione um índice para rastrear a tela selecionada
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -27,8 +27,8 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body:
-          _buildBody(), // Use um método separado para construir o corpo da tela
+      body: _buildBody(),
+      drawer: _buildDrawer(), // Adicione o Drawer aqui
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -42,9 +42,8 @@ class _HomeState extends State<Home> {
             label: 'Tarefas',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-                Icons.calendar_month), // Altere o ícone para um botão entalhado
-            label: 'Calendario',
+            icon: Icon(Icons.calendar_month),
+            label: 'Calendário',
           ),
         ],
       ),
@@ -64,7 +63,7 @@ class _HomeState extends State<Home> {
               elevation: 10,
               child: const Icon(Icons.add),
             )
-          : null, // Remova o botão flutuante da tela de tarefas
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
@@ -113,7 +112,7 @@ class _HomeState extends State<Home> {
         ],
       );
     } else {
-      return Container(); // Caso contrário, retorne um container vazio
+      return Container();
     }
   }
 
@@ -186,23 +185,81 @@ class _HomeState extends State<Home> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: tdBGColor,
+      backgroundColor: Colors.blue, // Defina a cor da barra superior como azul
       elevation: 0,
-      title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        const Icon(
-          Icons.menu,
-          color: tdBlack,
-          size: 30,
-        ),
+      title: const Text('MemoTask'),
+      actions: [
         SizedBox(
           height: 40,
           width: 40,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.asset('assets/images/avatar.jpeg'),
+            borderRadius: BorderRadius.circular(40),
+            child: Image.asset(
+              'assets/images/avatar.jpeg',
+              scale: 10,
+            ),
           ),
         ),
-      ]),
+      ],
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: Colors.blue, // Use a mesma cor da barra superior
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 80,
+                  width: 80,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(40),
+                    child: Image.asset('assets/images/avatar.jpeg'),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Seu Nome',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+                const Text(
+                  'email@example.com',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Página Inicial'),
+            onTap: () {
+              Navigator.pop(context);
+              // Implementar depois
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Configurações'),
+            onTap: () {
+              Navigator.pop(context);
+              // Implementar depois
+            },
+          ),
+        ],
+      ),
     );
   }
 }
