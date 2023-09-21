@@ -50,7 +50,7 @@ class LoginPage extends StatelessWidget {
                       final loginSuccessful =
                           await viewModel.login(username, password);
                       if (loginSuccessful) {
-                        Navigator.pushReplacementNamed(context, '/home');
+                        Navigator.pushReplacementNamed(context, '/home'); // se a senha estiver correta ira para proxima tela "home".
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
