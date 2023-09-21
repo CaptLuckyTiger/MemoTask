@@ -5,10 +5,10 @@ class CalendarScreen extends StatefulWidget {
   const CalendarScreen({Key? key}) : super(key: key);
 
   @override
-  _CalendarScreenState createState() => _CalendarScreenState();
+  CalendarScreenState createState() => CalendarScreenState();
 }
 
-class _CalendarScreenState extends State<CalendarScreen> {
+class CalendarScreenState extends State<CalendarScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   final DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
