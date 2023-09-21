@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart'; // Import the table_calendar package
+import 'package:table_calendar/table_calendar.dart';
+import '../constants/colors.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({Key? key}) : super(key: key);
 
   @override
-  CalendarScreenState createState() => CalendarScreenState();
+  State<CalendarScreen> createState() => _CalendarScreenState();
 }
 
 class CalendarScreenState extends State<CalendarScreen> {
@@ -17,36 +18,31 @@ class CalendarScreenState extends State<CalendarScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calendario'),
-        backgroundColor: Colors.blue, // Cor azul do calendario
+        title: const Text('Calendário'),
+        backgroundColor: tdBlue,
       ),
       body: Center(
-        child: Column(
-          children: [
-            TableCalendar(
-              calendarFormat: _calendarFormat,
-              focusedDay: _focusedDay,
-              firstDay: DateTime(2000),
-              lastDay: DateTime(2050),
-              selectedDayPredicate: (day) {
-                // Use isso para mudar o estilo do calendario.
-                return isSameDay(_selectedDay, day);
-              },
-              onFormatChanged: (format) {
-                setState(() {
-                  _calendarFormat = format;
-                });
-              },
-              onPageChanged: (focusedDay) {
-                // No-op
-              },
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = selectedDay;
-                });
-              },
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TableCalendar(
+            calendarFormat: _calendarFormat,
+            focusedDay: _focusedDay,
+            firstDay: DateTime(2000),
+            lastDay: DateTime(2050),
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+            onFormatChanged: (format) {
+              setState(() {
+                _calendarFormat = format;
+              });
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+              });
+            },
+          ),
         ),
       ),
     );

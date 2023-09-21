@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
+  const AddTaskScreen({Key? key}) : super(key: key);
 
   @override
-  AddTaskScreenState createState() => AddTaskScreenState();
+  State<AddTaskScreen> createState() => _AddTaskScreenState();
 }
 
 class AddTaskScreenState extends State<AddTaskScreen> {
@@ -26,7 +26,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
               controller: _taskController,
               decoration: const InputDecoration(
                   hintText: 'Titulo da tarefa',
-                  //errorText: 'O nome não pode ser vazio',
+                  //errorText: 'O titulo não pode ser vazio',
                   border: OutlineInputBorder()),
             ),
             const SizedBox(height: 20.0),

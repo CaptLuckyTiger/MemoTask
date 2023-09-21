@@ -72,7 +72,6 @@ class _HomeState extends State<Home> {
 
   Widget _buildBody() {
     if (_currentIndex == 0) {
-      // Conteúdo da lista de tarefas
       return Stack(
         children: [
           Container(
@@ -84,28 +83,16 @@ class _HomeState extends State<Home> {
               children: [
                 searchBox(),
                 Expanded(
-                  child: ListView(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(
-                          top: 50,
-                          bottom: 20,
-                        ),
-                        child: const Text(
-                          'Tarefas',
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      for (ToDo todoo in _foundToDo.reversed)
-                        ToDoItem(
-                          todo: todoo,
-                          onToDoChanged: _handleToDoChange,
-                          onDeleteItem: _deleteToDoItem,
-                        ),
-                    ],
+                  child: ListView.builder(
+                    itemCount: _foundToDo.length,
+                    itemBuilder: (context, index) {
+                      final todo = _foundToDo[index];
+                      return ToDoItem(
+                        todo: todo,
+                        onToDoChanged: _handleToDoChange,
+                        onDeleteItem: _deleteToDoItem,
+                      );
+                    },
                   ),
                 )
               ],
@@ -114,7 +101,7 @@ class _HomeState extends State<Home> {
         ],
       );
     } else {
-      return CalendarScreen(); // retorna a função do calendario na tela home.
+      return const CalendarScreen();
     }
   }
 
@@ -161,7 +148,7 @@ class _HomeState extends State<Home> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: tdBGColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: TextField(
@@ -187,7 +174,7 @@ class _HomeState extends State<Home> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.blue, // Defina a cor da barra superior como azul
+      backgroundColor: tdBlue,
       elevation: 0,
       title: const Text('MemoTask'),
       actions: [
@@ -213,7 +200,7 @@ class _HomeState extends State<Home> {
         children: [
           DrawerHeader(
             decoration: const BoxDecoration(
-              color: Colors.blue, // Use a mesma cor da barra superior
+              color: tdBlue,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,14 +217,14 @@ class _HomeState extends State<Home> {
                 const Text(
                   'Seu Nome',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: tdBGColor,
                     fontSize: 18,
                   ),
                 ),
                 const Text(
                   'email@example.com',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: tdBGColor,
                     fontSize: 14,
                   ),
                 ),
