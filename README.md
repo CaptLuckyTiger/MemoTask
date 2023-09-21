@@ -23,3 +23,8 @@ Atualização BUG consertado e resolvido.
 
 -> Calendario ainda não implementado.
 -> Menu no homem não implementado.
+
+Atualização 
+
+-> Calendario implementado.
+-> Menu Lateral Implementado.
