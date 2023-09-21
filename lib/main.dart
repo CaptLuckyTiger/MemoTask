@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';  // esse packgake Intl foi usado para deixar outros packges em português como o calendario.
 import './screens/home.dart';
 import 'View/login_page.dart';
 
@@ -11,7 +11,7 @@ void main() {
     // Setando localidade português Brasil (pt_BR)
     var locale = const Locale('pt', 'BR');
     Intl.defaultLocale = locale.toString();
-  });
+  });  
 
   runApp(const MyApp());
 }
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, // Desliga a marca de agua do banner.
       title: 'MemoTask',
       home: const Home(),
 
