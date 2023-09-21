@@ -16,7 +16,7 @@ class _HomeState extends State<Home> {
   final todosList = ToDo.todoList();
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
-  int _currentIndex = 0; // Adicione um índice para rastrear a tela selecionada
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -28,8 +28,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body:
-          _buildBody(), // Use um método separado para construir o corpo da tela
+      body: _buildBody(),
       drawer: _buildDrawer(), // Adicione o Drawer aqui
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -45,7 +44,7 @@ class _HomeState extends State<Home> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month),
-            label: 'Calendario',
+            label: 'Calendário',
           ),
         ],
       ),
@@ -66,7 +65,7 @@ class _HomeState extends State<Home> {
               elevation: 10,
               child: const Icon(Icons.add),
             )
-          : null, // Remova o botão flutuante da tela de tarefas
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
@@ -115,7 +114,7 @@ class _HomeState extends State<Home> {
         ],
       );
     } else {
-      return const CalendarScreen(); // Use the CalendarScreen widget here
+      return Container();
     }
   }
 
