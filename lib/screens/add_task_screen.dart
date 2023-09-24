@@ -8,7 +8,7 @@ class AddTaskScreen extends StatefulWidget {
   State<AddTaskScreen> createState() => _AddTaskScreenState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen> {
+class AddTaskScreenState extends State<AddTaskScreen> {
   final _taskController = TextEditingController();
   bool _taskError = false;
   @override
