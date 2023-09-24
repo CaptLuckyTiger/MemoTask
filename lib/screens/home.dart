@@ -147,9 +147,8 @@ class _HomeState extends State<Home> {
   Widget searchBox() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: tdBGColor,
-        borderRadius: BorderRadius.circular(20),
       ),
       child: TextField(
         onChanged: (value) => _runFilter(value),
@@ -165,7 +164,7 @@ class _HomeState extends State<Home> {
             minWidth: 25,
           ),
           border: InputBorder.none,
-          hintText: 'Search',
+          hintText: 'Pesquisar',
           hintStyle: TextStyle(color: tdGrey),
         ),
       ),

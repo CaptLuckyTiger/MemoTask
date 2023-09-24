@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/colors.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({Key? key}) : super(key: key);
@@ -9,9 +10,7 @@ class AddTaskScreen extends StatefulWidget {
 
 class AddTaskScreenState extends State<AddTaskScreen> {
   final _taskController = TextEditingController();
-
-  //DateTime? _selectedDate; // Estado da data selecionada
-
+  bool _taskError = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,10 +23,21 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           children: [
             TextField(
               controller: _taskController,
-              decoration: const InputDecoration(
-                  hintText: 'Titulo da tarefa',
-                  //errorText: 'O titulo não pode ser vazio',
-                  border: OutlineInputBorder()),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                prefixIconConstraints: const BoxConstraints(
+                  maxHeight: 20,
+                  minWidth: 25,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                hintText: 'Adicionar Tarefa',
+                hintStyle: const TextStyle(color: tdGrey),
+                errorText: _taskError
+                    ? 'Não é possível criar uma tarefa sem título'
+                    : null,
+              ),
             ),
             const SizedBox(height: 20.0),
           ],
@@ -38,6 +48,10 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           String newTask = _taskController.text;
           if (newTask.isNotEmpty) {
             Navigator.pop(context, newTask);
+          } else {
+            setState(() {
+              _taskError = true;
+            });
           }
         },
         label: const Text('Salvar'),
