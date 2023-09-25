@@ -42,6 +42,12 @@ class CalendarScreenState extends State<CalendarScreen> {
                 _selectedDay = selectedDay;
               });
             },
+                availableCalendarFormats: const {
+                CalendarFormat.month: 'Mês',
+                CalendarFormat.week: 'Semana',
+              },
+              locale:
+                  'pt_BR', // Defina o idioma para português do botão padrão do package table_calender que muda a visualização do calendario para semana ou mês
           ),
         ),
       ),
