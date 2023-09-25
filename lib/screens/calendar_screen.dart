@@ -17,10 +17,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calendário'),
-        backgroundColor: tdBlue,
-      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
