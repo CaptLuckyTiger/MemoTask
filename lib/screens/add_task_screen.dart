@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
-
   @override
-  _AddTaskScreenState createState() => _AddTaskScreenState();
+  AddTaskScreenState createState() => AddTaskScreenState();
+
+  const AddTaskScreen({super.key});
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen> {
+class AddTaskScreenState extends State<AddTaskScreen> {
   final _taskController = TextEditingController();
 
-  //DateTime? _selectedDate; // Estado da data selecionada
+  //DateTime? _selectedDate;  // Estado da data selecionada
 
   @override
   Widget build(BuildContext context) {
