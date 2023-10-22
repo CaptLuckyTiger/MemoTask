@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_todo_app/screens/calendar_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import './screens/home.dart';
@@ -16,6 +17,9 @@ void main() {
   runApp(const MyApp());
 }
 
+// Crie e configure o mapa de eventos
+Map<DateTime, List<String>> events = {};
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -27,11 +31,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'MemoTask',
       home: const Home(),
-
-      initialRoute: '/login', //Rota incial login aparecera primeiro.
+      initialRoute: '/login', // Rota inicial: login aparecerá primeiro.
       routes: {
         '/login': (context) => LoginPage(),
         '/home': (context) => const Home(),
+        '/calendar': (context) =>
+            CalendarScreen(events: events), // Rota para CalendarScreen
       },
     );
   }

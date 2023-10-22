@@ -13,12 +13,12 @@ class ToDo {
 
   static List<ToDo> todoList() {
     return [
-      ToDo(id: '01', todoText: 'Teste1', isDone: true),
-      ToDo(
-        id: '02',
-        todoText: 'Teste2',
-      ),
+      ToDo(id: '01', todoText: 'Teste1', isDone: true, date: DateTime.now()),
+      ToDo(id: '02', todoText: 'Teste2', isDone: true, date: DateTime.now()),
       ToDo(id: '03', todoText: 'Teste1', isDone: true, date: DateTime.now()),
     ];
   }
 }
+
+
+//arquivo de demonstração ///

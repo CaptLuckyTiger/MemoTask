@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart'; // Import the table_calendar package
+import 'package:table_calendar/table_calendar.dart';
+import 'eventdetailsscreen.dart';
+
+//import 'eventdetailsscreen.dart'; // Import the table_calendar package
 
 class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({Key? key}) : super(key: key);
+  final Map<DateTime, List<String>> events;
+
+  const CalendarScreen({required this.events});
 
   @override
   CalendarScreenState createState() => CalendarScreenState();
@@ -29,7 +34,6 @@ class CalendarScreenState extends State<CalendarScreen> {
               firstDay: DateTime(2000),
               lastDay: DateTime(2050),
               selectedDayPredicate: (day) {
-                // Use isso para mudar o estilo do calendario.
                 return isSameDay(_selectedDay, day);
               },
               onFormatChanged: (format) {
@@ -41,16 +45,29 @@ class CalendarScreenState extends State<CalendarScreen> {
                 // No-op
               },
               onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = selectedDay;
-                });
+                print('Dia selecionado: $selectedDay');
+                final eventDetails = widget.events[selectedDay] ?? [];
+                print('Events for Selected Day: ${widget.events[selectedDay]}');
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EventDetailsScreen(
+                      eventDetails: eventDetails,
+                    ),
+                  ),
+                );
               },
               availableCalendarFormats: const {
                 CalendarFormat.month: 'Mês',
                 CalendarFormat.week: 'Semana',
               },
-              locale:
-                  'pt_BR', // Defina o idioma para português do botão padrão do package table_calender que muda a visualização do calendario para semana ou mês
+              locale: 'pt_BR',
+              eventLoader: (day) {
+                // Defina a data sem informações de horário para garantir compatibilidade com o mapa de eventos
+                final dateWithoutTime = DateTime(day.year, day.month, day.day);
+
+                // Use a data sem informações de horário para carregar as tarefas associadas a um dia
+                return widget.events[dateWithoutTime] ?? [];
+              },
             ),
           ],
         ),

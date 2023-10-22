@@ -55,7 +55,9 @@ class _HomeState extends State<Home> {
                 final newTask = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const AddTaskScreen()),
+                      builder: (context) => AddTaskScreen(
+                            events: {},
+                          )),
                 );
 
                 if (newTask != null) {
@@ -114,7 +116,9 @@ class _HomeState extends State<Home> {
         ],
       );
     } else {
-      return const CalendarScreen();
+      return CalendarScreen(
+        events: {},
+      );
     }
   }
 
