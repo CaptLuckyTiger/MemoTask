@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AddTaskScreen extends StatefulWidget {
   @override
   AddTaskScreenState createState() => AddTaskScreenState();
 
-  // Declaração do atributo events
   final Map<DateTime, List<String>> events;
 
   AddTaskScreen({required this.events});
@@ -37,11 +37,11 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           String newTask = _taskController.text;
           if (newTask.isNotEmpty) {
             DateTime currentDate = DateTime.now();
-            String formattedDate =
-                '${currentDate.day}/${currentDate.month}/${currentDate.year}';
+            String formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
             String taskWithDate = '$newTask - $formattedDate';
 
-            // Use o setter para atualizar os eventos
+            print('Data da tarefa criada: $formattedDate'); // Adicione este log
+
             setState(() {
               widget.events[currentDate] = [
                 ...widget.events[currentDate] ?? [],
@@ -49,10 +49,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
               ];
             });
 
-            // Limpe o campo de texto após adicionar a tarefa
             _taskController.clear();
 
-            // Adicione um print statement para verificar os eventos atualizados
             print('Eventos atualizados: ${widget.events}');
 
             Navigator.pop(context, taskWithDate);

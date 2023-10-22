@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 class EventDetailsScreen extends StatelessWidget {
   final List<String> eventDetails;
 
-  const EventDetailsScreen({required this.eventDetails});
+  EventDetailsScreen({required this.eventDetails}) {
+    debugPrint("Received Event Details: $eventDetails");
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'eventdetailsscreen.dart';
 
-//import 'eventdetailsscreen.dart'; // Import the table_calendar package
+import 'eventdetailsscreen.dart';
 
 class CalendarScreen extends StatefulWidget {
   final Map<DateTime, List<String>> events;
@@ -23,7 +22,7 @@ class CalendarScreenState extends State<CalendarScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calendario'),
-        backgroundColor: Colors.blue, // Cor azul do calendario
+        backgroundColor: Colors.blue,
       ),
       body: Center(
         child: Column(
@@ -47,7 +46,8 @@ class CalendarScreenState extends State<CalendarScreen> {
               onDaySelected: (selectedDay, focusedDay) {
                 print('Dia selecionado: $selectedDay');
                 final eventDetails = widget.events[selectedDay] ?? [];
-                print('Events for Selected Day: ${widget.events[selectedDay]}');
+                print(
+                    'Events for Selected Day: $eventDetails'); // Altere esta linha
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => EventDetailsScreen(
@@ -62,11 +62,21 @@ class CalendarScreenState extends State<CalendarScreen> {
               },
               locale: 'pt_BR',
               eventLoader: (day) {
-                // Defina a data sem informações de horário para garantir compatibilidade com o mapa de eventos
-                final dateWithoutTime = DateTime(day.year, day.month, day.day);
+                // Filtrar as tarefas com base na data de criação
+                final tasksForSelectedDay = widget.events.entries
+                    .where((entry) {
+                      final taskDate = entry.key;
+                      print('Data da tarefa: $taskDate'); // Adicione este log
+                      print('Dia selecionado: $day'); // Adicione este log
+                      return isSameDay(taskDate, day);
+                    })
+                    .map((entry) => entry.value)
+                    .expand((tasks) => tasks)
+                    .toList();
+                print(
+                    'Tarefas para o dia $day: $tasksForSelectedDay'); // Adicione este log
 
-                // Use a data sem informações de horário para carregar as tarefas associadas a um dia
-                return widget.events[dateWithoutTime] ?? [];
+                return tasksForSelectedDay;
               },
             ),
           ],
