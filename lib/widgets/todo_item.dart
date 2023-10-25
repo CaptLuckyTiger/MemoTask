@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Importe a classe DateFormat
-
 import '../model/todo.dart';
 import '../constants/colors.dart';
 
 class ToDoItem extends StatelessWidget {
   final ToDo todo;
-  final onToDoChanged;
-  final onDeleteItem;
+  final void Function(ToDo) onToDoChanged; // Especifique o tipo da função aqui
+  final void Function(String) onDeleteItem; // Especifique o tipo da função aqui
 
   const ToDoItem({
     Key? key,
@@ -64,13 +63,15 @@ class ToDoItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(5),
           ),
           child: IconButton(
-            color: Colors.white,
-            iconSize: 18,
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              onDeleteItem(todo.id);
-            },
-          ),
+              color: Colors.white,
+              iconSize: 18,
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                if (todo.id != null) {
+                  onDeleteItem(todo
+                      .id!); // Usando o operador '!' para indicar que o valor não é nulo
+                }
+              }),
         ),
       ),
     );

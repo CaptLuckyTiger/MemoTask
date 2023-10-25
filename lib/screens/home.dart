@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../model/todo.dart';
 import '../constants/colors.dart';
 import '../widgets/todo_item.dart';
+
 import 'add_task_screen.dart';
 import 'calendar_screen.dart'; // Importe a tela de adição de tarefas
 
@@ -55,9 +56,7 @@ class _HomeState extends State<Home> {
                 final newTask = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => AddTaskScreen(
-                            events: {},
-                          )),
+                      builder: (context) => const AddTaskScreen()),
                 );
 
                 if (newTask != null) {
@@ -74,7 +73,6 @@ class _HomeState extends State<Home> {
 
   Widget _buildBody() {
     if (_currentIndex == 0) {
-      // Conteúdo da lista de tarefas
       return Stack(
         children: [
           Container(
@@ -86,28 +84,16 @@ class _HomeState extends State<Home> {
               children: [
                 searchBox(),
                 Expanded(
-                  child: ListView(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(
-                          top: 50,
-                          bottom: 20,
-                        ),
-                        child: const Text(
-                          'Tarefas',
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      for (ToDo todoo in _foundToDo.reversed)
-                        ToDoItem(
-                          todo: todoo,
-                          onToDoChanged: _handleToDoChange,
-                          onDeleteItem: _deleteToDoItem,
-                        ),
-                    ],
+                  child: ListView.builder(
+                    itemCount: _foundToDo.length,
+                    itemBuilder: (context, index) {
+                      final todo = _foundToDo[index];
+                      return ToDoItem(
+                        todo: todo,
+                        onToDoChanged: _handleToDoChange,
+                        onDeleteItem: _deleteToDoItem,
+                      );
+                    },
                   ),
                 )
               ],
@@ -116,9 +102,7 @@ class _HomeState extends State<Home> {
         ],
       );
     } else {
-      return CalendarScreen(
-        events: {},
-      );
+      return const CalendarScreen();
     }
   }
 
@@ -164,9 +148,8 @@ class _HomeState extends State<Home> {
   Widget searchBox() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+      decoration: const BoxDecoration(
+        color: tdBGColor,
       ),
       child: TextField(
         onChanged: (value) => _runFilter(value),
@@ -182,7 +165,7 @@ class _HomeState extends State<Home> {
             minWidth: 25,
           ),
           border: InputBorder.none,
-          hintText: 'Search',
+          hintText: 'Pesquisar',
           hintStyle: TextStyle(color: tdGrey),
         ),
       ),
@@ -191,7 +174,7 @@ class _HomeState extends State<Home> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.blue, // Defina a cor da barra superior como azul
+      backgroundColor: tdBlue,
       elevation: 0,
       title: const Text('MemoTask'),
       actions: [
@@ -217,7 +200,7 @@ class _HomeState extends State<Home> {
         children: [
           DrawerHeader(
             decoration: const BoxDecoration(
-              color: Colors.blue, // Use a mesma cor da barra superior
+              color: tdBlue,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,14 +217,14 @@ class _HomeState extends State<Home> {
                 const Text(
                   'Seu Nome',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: tdBGColor,
                     fontSize: 18,
                   ),
                 ),
                 const Text(
                   'email@example.com',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: tdBGColor,
                     fontSize: 14,
                   ),
                 ),

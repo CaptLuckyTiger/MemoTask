@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../constants/colors.dart';
+import '../widgets/taskprovider.dart';
 
 class AddTaskScreen extends StatefulWidget {
+  const AddTaskScreen({Key? key}) : super(key: key);
+
   @override
-  AddTaskScreenState createState() => AddTaskScreenState();
-
-  final Map<DateTime, List<String>> events;
-
-  AddTaskScreen({required this.events});
+  State<AddTaskScreen> createState() => _AddTaskScreenState();
 }
 
-class AddTaskScreenState extends State<AddTaskScreen> {
+class _AddTaskScreenState extends State<AddTaskScreen> {
   final _taskController = TextEditingController();
-
+  final bool _taskError = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,8 +26,21 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           children: [
             TextField(
               controller: _taskController,
-              decoration: const InputDecoration(
-                  hintText: 'Titulo da tarefa', border: OutlineInputBorder()),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                prefixIconConstraints: const BoxConstraints(
+                  maxHeight: 20,
+                  minWidth: 25,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                hintText: 'Adicionar Tarefa',
+                hintStyle: const TextStyle(color: tdGrey),
+                errorText: _taskError
+                    ? 'Não é possível criar uma tarefa sem título'
+                    : null,
+              ),
             ),
             const SizedBox(height: 20.0),
           ],
@@ -40,18 +54,9 @@ class AddTaskScreenState extends State<AddTaskScreen> {
             String formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
             String taskWithDate = '$newTask - $formattedDate';
 
-            print('Data da tarefa criada: $formattedDate'); // Adicione este log
-
-            setState(() {
-              widget.events[currentDate] = [
-                ...widget.events[currentDate] ?? [],
-                taskWithDate
-              ];
-            });
-
-            _taskController.clear();
-
-            print('Eventos atualizados: ${widget.events}');
+            TaskProvider taskProvider =
+                Provider.of<TaskProvider>(context, listen: false);
+            taskProvider.addTask(taskWithDate);
 
             Navigator.pop(context, taskWithDate);
           }
