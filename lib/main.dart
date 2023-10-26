@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
       home: const Home(),
       initialRoute: '/login', // Rota inicial, login aparecerá primeiro.
       routes: {
-        '/login': (context) => LoginPage(), // Substitua pelo widget de login
+        '/login': (context) => LoginPage(),
         '/home': (context) => const Home(),
       },
     );

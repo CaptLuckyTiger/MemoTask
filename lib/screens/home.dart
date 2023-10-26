@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../model/todo.dart';
 import '../constants/colors.dart';
+import '../widgets/taskprovider.dart';
 import '../widgets/todo_item.dart';
 
 import 'add_task_screen.dart';
@@ -73,6 +75,7 @@ class _HomeState extends State<Home> {
 
   Widget _buildBody() {
     if (_currentIndex == 0) {
+      final taskProvider = Provider.of<TaskProvider>(context);
       return Stack(
         children: [
           Container(
@@ -84,14 +87,19 @@ class _HomeState extends State<Home> {
               children: [
                 searchBox(),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: _foundToDo.length,
-                    itemBuilder: (context, index) {
-                      final todo = _foundToDo[index];
-                      return ToDoItem(
-                        todo: todo,
-                        onToDoChanged: _handleToDoChange,
-                        onDeleteItem: _deleteToDoItem,
+                  child: Consumer<TaskProvider>(
+                    builder: (context, taskProvider, child) {
+                      return ListView.builder(
+                        itemCount: taskProvider.tasks.length,
+                        itemBuilder: (context, index) {
+                          final task = taskProvider.tasks[index];
+                          return ToDoItem(
+                            todo: ToDo(id: task.title, todoText: task.title),
+                            onToDoChanged: _handleToDoChange,
+                            onDeleteItem: (id) => _deleteToDoItem(
+                                id, taskProvider), // Passa o taskProvider
+                          );
+                        },
                       );
                     },
                   ),
@@ -112,9 +120,10 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void _deleteToDoItem(String id) {
+  void _deleteToDoItem(String id, TaskProvider taskProvider) {
     setState(() {
-      todosList.removeWhere((item) => item.id == id);
+      taskProvider.removeTask(id);
+      _foundToDo.removeWhere((task) => task.id == id);
     });
   }
 
@@ -130,6 +139,7 @@ class _HomeState extends State<Home> {
 
   void _runFilter(String enteredKeyword) {
     List<ToDo> results = [];
+
     if (enteredKeyword.isEmpty) {
       results = todosList;
     } else {

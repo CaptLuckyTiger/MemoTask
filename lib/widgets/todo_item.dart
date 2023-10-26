@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Importe a classe DateFormat
+import 'package:intl/intl.dart';
 import '../model/todo.dart';
 import '../constants/colors.dart';
 
-class ToDoItem extends StatelessWidget {
+class ToDoItem extends StatefulWidget {
   final ToDo todo;
-  final void Function(ToDo) onToDoChanged; // Especifique o tipo da função aqui
-  final void Function(String) onDeleteItem; // Especifique o tipo da função aqui
+  final void Function(ToDo) onToDoChanged;
+  final void Function(String) onDeleteItem;
 
   const ToDoItem({
     Key? key,
@@ -16,12 +16,22 @@ class ToDoItem extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _ToDoItemState createState() => _ToDoItemState();
+}
+
+class _ToDoItemState extends State<ToDoItem> {
+  bool _isDone = false;
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: ListTile(
         onTap: () {
-          onToDoChanged(todo);
+          setState(() {
+            _isDone = !_isDone;
+          });
+          widget.onToDoChanged(widget.todo);
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -29,23 +39,23 @@ class ToDoItem extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         tileColor: Colors.white,
         leading: Icon(
-          todo.isDone ? Icons.check_box : Icons.check_box_outline_blank,
+          _isDone ? Icons.check_box : Icons.check_box_outline_blank,
           color: tdBlue,
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              todo.todoText!,
+              widget.todo.todoText!,
               style: TextStyle(
                 fontSize: 16,
                 color: tdBlack,
-                decoration: todo.isDone ? TextDecoration.lineThrough : null,
+                decoration: _isDone ? TextDecoration.lineThrough : null,
               ),
             ),
-            if (todo.date != null) // Exibir a data se estiver disponível
+            if (widget.todo.date != null)
               Text(
-                'Date: ${DateFormat('yyyy-MM-dd').format(todo.date!)}',
+                'Data: ${DateFormat('yyyy-MM-dd').format(widget.todo.date!)}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: tdGrey,
@@ -63,15 +73,15 @@ class ToDoItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(5),
           ),
           child: IconButton(
-              color: Colors.white,
-              iconSize: 18,
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                if (todo.id != null) {
-                  onDeleteItem(todo
-                      .id!); // Usando o operador '!' para indicar que o valor não é nulo
-                }
-              }),
+            color: Colors.white,
+            iconSize: 18,
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              if (widget.todo.id != null) {
+                widget.onDeleteItem(widget.todo.id!);
+              }
+            },
+          ),
         ),
       ),
     );

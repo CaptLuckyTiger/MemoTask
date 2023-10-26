@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/screens/tasks_screen_details.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../Model/task.dart';
+import '../widgets/taskprovider.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({Key? key}) : super(key: key);
@@ -15,34 +19,61 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final taskProvider = Provider.of<TaskProvider>(context);
+
+    // Filtra as tarefas que correspondem à data selecionada
+    List<Task> tasksForSelectedDay = taskProvider.tasks
+        .where((task) => isSameDay(task.date, _selectedDay))
+        .toList();
+
     return Scaffold(
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: TableCalendar(
-            calendarFormat: _calendarFormat,
-            focusedDay: _focusedDay,
-            firstDay: DateTime(2000),
-            lastDay: DateTime(2050),
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onFormatChanged: (format) {
-              setState(() {
-                _calendarFormat = format;
-              });
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-              });
-            },
-            availableCalendarFormats: const {
-              CalendarFormat.month: 'Mês',
-              CalendarFormat.week: 'Semana',
-            },
-            locale:
-                'pt_BR', // Defina o idioma para português do botão padrão do package table_calender que muda a visualização do calendario para semana ou mês
+          child: Column(
+            children: [
+              TableCalendar(
+                calendarFormat: _calendarFormat,
+                focusedDay: _focusedDay,
+                firstDay: DateTime(2000),
+                lastDay: DateTime(2050),
+                selectedDayPredicate: (day) {
+                  return isSameDay(_selectedDay, day);
+                },
+                onFormatChanged: (format) {
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                },
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                  });
+                },
+                availableCalendarFormats: const {
+                  CalendarFormat.month: 'Mês',
+                  CalendarFormat.week: 'Semana',
+                },
+                locale: 'pt_BR',
+              ),
+              // Exibe as tarefas do dia selecionado
+              if (tasksForSelectedDay.isNotEmpty)
+                Column(
+                  children: tasksForSelectedDay.map((task) {
+                    return ListTile(
+                      title: Text(task.title),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TaskDetailsScreen(task: task),
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
+                ),
+            ],
           ),
         ),
       ),

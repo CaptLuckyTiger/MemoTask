@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../Model/task.dart';
 import '../constants/colors.dart';
 import '../widgets/taskprovider.dart';
 
@@ -13,7 +13,7 @@ class AddTaskScreen extends StatefulWidget {
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final _taskController = TextEditingController();
-  final bool _taskError = false;
+  bool _taskError = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,17 +48,17 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          String newTask = _taskController.text;
-          if (newTask.isNotEmpty) {
-            DateTime currentDate = DateTime.now();
-            String formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
-            String taskWithDate = '$newTask - $formattedDate';
+          Task newTask = Task(_taskController.text, DateTime.now());
 
+          if (newTask.title.isNotEmpty) {
             TaskProvider taskProvider =
                 Provider.of<TaskProvider>(context, listen: false);
-            taskProvider.addTask(taskWithDate);
-
-            Navigator.pop(context, taskWithDate);
+            taskProvider.addTask(newTask);
+            Navigator.pop(context);
+          } else {
+            setState(() {
+              _taskError = true;
+            });
           }
         },
         label: const Text('Salvar'),
