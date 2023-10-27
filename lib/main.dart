@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_todo_app/View/login_page.dart';
 import 'package:flutter_todo_app/screens/home.dart';
+import 'package:flutter_todo_app/widgets/themeprovider.dart';
 import 'package:flutter_todo_app/widgets/taskprovider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +13,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TaskProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
       child: const MyApp(),
     ),

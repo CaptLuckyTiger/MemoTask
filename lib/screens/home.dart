@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../model/todo.dart';
 import '../constants/colors.dart';
+import '../widgets/ThemeProvider.dart';
 import '../widgets/taskprovider.dart';
 import '../widgets/todo_item.dart';
 
 import 'add_task_screen.dart';
-import 'calendar_screen.dart'; // Importe a tela de adição de tarefas
+import 'calendar_screen.dart';
+import 'config_screen.dart'; // Importe a tela de adição de tarefas
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -75,7 +77,6 @@ class _HomeState extends State<Home> {
 
   Widget _buildBody() {
     if (_currentIndex == 0) {
-      final taskProvider = Provider.of<TaskProvider>(context);
       return Stack(
         children: [
           Container(
@@ -88,7 +89,11 @@ class _HomeState extends State<Home> {
                 searchBox(),
                 Expanded(
                   child: Consumer<TaskProvider>(
-                    builder: (context, taskProvider, child) {
+                    builder: (
+                      context,
+                      taskProvider,
+                      child,
+                    ) {
                       return ListView.builder(
                         itemCount: taskProvider.tasks.length,
                         itemBuilder: (context, index) {
@@ -122,8 +127,10 @@ class _HomeState extends State<Home> {
 
   void _deleteToDoItem(String id, TaskProvider taskProvider) {
     setState(() {
+      print('Tentando excluir tarefa com ID: $id');
       taskProvider.removeTask(id);
       _foundToDo.removeWhere((task) => task.id == id);
+      print('Tarefa removida. Tamanho de _foundToDo: ${_foundToDo.length}');
     });
   }
 
@@ -245,20 +252,34 @@ class _HomeState extends State<Home> {
             leading: const Icon(Icons.home),
             title: const Text('Página Inicial'),
             onTap: () {
-              Navigator.pop(context);
-              // Implementar depois
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Home()),
+              );
             },
           ),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Configurações'),
             onTap: () {
-              Navigator.pop(context);
-              // Implementar depois
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ConfigScreen(
+                      onThemeChanged: updateTheme), // Passegem de função aqui
+                ),
+              );
             },
           ),
         ],
       ),
     );
+  }
+
+  void updateTheme(Color primaryColor, Color accentColor, Color backgroundColor,
+      Color textColor, Color secondaryColor) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    themeProvider.updateTheme(
+        primaryColor, accentColor, backgroundColor, textColor, secondaryColor);
   }
 }

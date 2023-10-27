@@ -26,7 +26,7 @@ class TaskDetailsScreen extends StatelessWidget {
               'Data da Tarefa: ${task.date.toLocal()}',
               style: TextStyle(fontSize: 16),
             ),
-            // Aqui você pode adicionar mais informações da tarefa, se necessário.
+            //  adicionar mais informações da tarefa, se necessário.
           ],
         ),
       ),

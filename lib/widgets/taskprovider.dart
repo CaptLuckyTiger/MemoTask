@@ -12,7 +12,10 @@ class TaskProvider with ChangeNotifier {
   }
 
   void removeTask(String taskId) {
+    print('Removendo tarefa com ID: $taskId');
+
     _tasks.removeWhere((task) => task.id == taskId);
+    print('Tarefas restantes: $_tasks');
     notifyListeners();
   }
 }
