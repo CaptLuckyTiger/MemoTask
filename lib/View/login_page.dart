@@ -1,77 +1,122 @@
 import 'package:flutter/material.dart';
-import '../constants/colors.dart';
-import '../ViewModel/login_view_model.dart';
 
-class LoginPage extends StatelessWidget {
-  final LoginViewModel viewModel = LoginViewModel();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+import 'package:flutter/widgets.dart';
 
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  LoginPage({Key? key}) : super(key: key);
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final formKey = GlobalKey<FormState>();
+  final email = TextEditingController();
+  final senha = TextEditingController();
+
+  bool isLogin = true;
+  late String titulo;
+  late String actionButton;
+  late String toggleButton;
+
+  @override
+  void initState() {
+    super.initState();
+    setFormAction(true);
+  }
+
+  void setFormAction(bool acao) {
+    setState(() {
+      isLogin = acao;
+      if (isLogin) {
+        titulo = 'Memo Task';
+        actionButton = 'Login';
+        toggleButton = 'Não possui conta? Cadastre-se';
+      } else {
+        titulo = 'Crie sua conta';
+        actionButton = 'Cadastrar';
+        toggleButton = 'Voltar ao Login';
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Memo Task'),
-        automaticallyImplyLeading: false, // Impede o botão de voltar
-      ),
-      body: Container(
-        color: tdBGColor,
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(top: 100),
           child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Usuário',
-                  ),
-                  validator: viewModel.validateUsername,
+            key: formKey,
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text(
+                titulo,
+                style: TextStyle(
+                  fontSize: 35,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -1.5,
                 ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _passwordController,
+              ),
+              Padding(
+                padding: EdgeInsets.all(24),
+                child: TextFormField(
+                  controller: email,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Email',
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Email está incorrreto';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(24),
+                child: TextFormField(
+                  controller: senha,
                   obscureText: true,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
                     labelText: 'Senha',
                   ),
-                  validator: viewModel.validatePassword,
-                ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      final username = _usernameController.text;
-                      final password = _passwordController.text;
-                      final loginSuccessful =
-                          await viewModel.login(username, password);
-                      if (loginSuccessful) {
-                        Navigator.pushReplacementNamed(context,
-                            '/home'); // se a senha estiver correta ira para proxima tela "home".
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Usuario ou senha incorreta'),
-                          ),
-                        );
-                      }
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'informar senha';
+                    } else if (value.length < 6) {
+                      return 'A senha deve conter o minimo de 6 caracteres';
                     }
+                    return null;
                   },
-                  child: const Text('Entrar'),
                 ),
-                TextButton(
-                  onPressed: () {
-                    // falta a implementação da esquceu a senha
-                  },
-                  child: const Text('Esqueceu a senha?'),
+              ),
+              Padding(
+                padding: EdgeInsets.all(24),
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.check),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          actionButton,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-              ],
-            ),
+              ),
+              TextButton(
+                  onPressed: () => setFormAction(!isLogin),
+                  child: Text(toggleButton))
+            ]),
           ),
         ),
       ),
