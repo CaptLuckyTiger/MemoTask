@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../Model/task.dart';
+import '../constants/colors.dart';
+import '../widgets/taskprovider.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  @override
-  AddTaskScreenState createState() => AddTaskScreenState();
+  const AddTaskScreen({Key? key}) : super(key: key);
 
-  const AddTaskScreen({super.key});
+  @override
+  State<AddTaskScreen> createState() => _AddTaskScreenState();
 }
 
-class AddTaskScreenState extends State<AddTaskScreen> {
+class _AddTaskScreenState extends State<AddTaskScreen> {
   final _taskController = TextEditingController();
+  bool _taskError = false;
 
-  //DateTime? _selectedDate;  // Estado da data selecionada
+  Future<void> _addTask(Task newTask) async {
+    TaskProvider taskProvider =
+        Provider.of<TaskProvider>(context, listen: false);
+    await taskProvider.addTask(newTask);
+    await taskProvider.loadTasks(); // Atualize a lista de tarefas após a adição
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,20 +35,39 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           children: [
             TextField(
               controller: _taskController,
-              decoration: const InputDecoration(
-                  hintText: 'Titulo da tarefa',
-                  //errorText: 'O nome não pode ser vazio',
-                  border: OutlineInputBorder()),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                prefixIconConstraints: const BoxConstraints(
+                  maxHeight: 20,
+                  minWidth: 25,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                hintText: 'Adicionar Tarefa',
+                hintStyle: const TextStyle(color: tdGrey),
+                errorText: _taskError
+                    ? 'Não é possível criar uma tarefa sem título'
+                    : null,
+              ),
             ),
             const SizedBox(height: 20.0),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          String newTask = _taskController.text;
-          if (newTask.isNotEmpty) {
-            Navigator.pop(context, newTask);
+        onPressed: () async {
+          Task newTask = Task(_taskController.text, DateTime.now());
+
+          if (newTask.title.isNotEmpty) {
+            TaskProvider taskProvider =
+                Provider.of<TaskProvider>(context, listen: false);
+            taskProvider.addTask(newTask);
+            Navigator.pop(context);
+          } else {
+            setState(() {
+              _taskError = true;
+            });
           }
         },
         label: const Text('Salvar'),

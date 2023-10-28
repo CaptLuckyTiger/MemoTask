@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_todo_app/View/login_page.dart';
+import 'package:flutter_todo_app/screens/home.dart';
+import 'package:flutter_todo_app/widgets/taskprovider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import './screens/home.dart';
-import 'View/login_page.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
-  // Inicializar data para Português Brasil
-  initializeDateFormatting('pt_BR', null).then((_) {
-    // Setando localidade português Brasil (pt_BR)
-    var locale = const Locale('pt', 'BR');
-    Intl.defaultLocale = locale.toString();
-  });
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TaskProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,18 +30,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Inicializar data para Português Brasil
+    initializeDateFormatting('pt_BR', null).then((_) {
+      // Setando localidade português Brasil (pt_BR)
+      var locale = const Locale('pt', 'BR');
+      Intl.defaultLocale = locale.toString();
+    });
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, // Desliga a marca de agua do banner.
       title: 'MemoTask',
       home: const Home(),
-
-      initialRoute: '/login', //Rota incial login aparecera primeiro.
+      initialRoute: '/login', // Rota inicial, login aparecerá primeiro.
       routes: {
         '/login': (context) => LoginPage(),
         '/home': (context) => const Home(),
       },
     );
+  }
+}
+
+class AppState extends ChangeNotifier {
+  String someData = 'Hello from Provider';
+
+  void updateData(String newData) {
+    someData = newData;
+    notifyListeners();
   }
 }
