@@ -42,7 +42,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
+          child: ListView(
             children: [
               TableCalendar(
                 calendarFormat: _calendarFormat,
