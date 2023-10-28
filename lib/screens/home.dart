@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/services/auth_service.dart';
 import 'package:provider/provider.dart';
 import '../model/todo.dart';
 import '../constants/colors.dart';
@@ -312,6 +313,14 @@ class _HomeState extends State<Home> {
             onTap: () {
               Navigator.pop(context);
               // Implementar depois
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Sair'),
+            onTap: () {
+              Navigator.pop(context);
+              context.read<AuthService>().logout();
             },
           ),
         ],
