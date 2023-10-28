@@ -15,16 +15,28 @@ class CalendarScreen extends StatefulWidget {
 class _CalendarScreenState extends State<CalendarScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   final DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
+  DateTime? _selectedDay = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+    taskProvider.loadTasks(); // Carrega as tarefas do Firestore
+  }
 
   @override
   Widget build(BuildContext context) {
     final taskProvider = Provider.of<TaskProvider>(context);
 
-    // Filtra as tarefas que correspondem à data selecionada
+    print("Selected Day: $_selectedDay");
+    print("Tasks Count: ${taskProvider.tasks.length}");
+
     List<Task> tasksForSelectedDay = taskProvider.tasks
-        .where((task) => isSameDay(task.date, _selectedDay))
+        .where(
+            (task) => task.date != null && isSameDay(task.date!, _selectedDay))
         .toList();
+
+    print("Tasks for Selected Day: ${tasksForSelectedDay.length}");
 
     return Scaffold(
       body: Center(
@@ -47,7 +59,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 },
                 onDaySelected: (selectedDay, focusedDay) {
                   setState(() {
-                    _selectedDay = selectedDay;
+                    _selectedDay = selectedDay; // Atualiza a data selecionada
                   });
                 },
                 availableCalendarFormats: const {

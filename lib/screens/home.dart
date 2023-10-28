@@ -4,9 +4,11 @@ import '../model/todo.dart';
 import '../constants/colors.dart';
 import '../widgets/taskprovider.dart';
 import '../widgets/todo_item.dart';
-
 import 'add_task_screen.dart';
 import 'calendar_screen.dart'; // Importe a tela de adição de tarefas
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../Model/task.dart'; // Agora vai
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -20,11 +22,53 @@ class _HomeState extends State<Home> {
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
   int _currentIndex = 0;
+  final FirebaseFirestore _firestore =
+      FirebaseFirestore.instance; // Define the Firestore instance
 
   @override
   void initState() {
     _foundToDo = todosList;
+    _fetchTasksFromFirestore();
     super.initState();
+    Provider.of<TaskProvider>(context, listen: false).loadTasks();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Provider.of<TaskProvider>(context, listen: false).loadTasks();
+  }
+
+  Future<void> _fetchTasksFromFirestore() async {
+    try {
+      final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+      final querySnapshot = await _firestore.collection('tasks').get();
+      final tasks = querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final title = data['title'];
+        final date = data['date'].toDate();
+        print('Fetched Task: $title, Date: $date');
+        return Task(title, date);
+      }).toList();
+
+      taskProvider.setTasks(tasks);
+
+      // Agora, configure um Stream para ouvir atualizações em tempo real do Firestore
+      _firestore.collection('tasks').snapshots().listen((querySnapshot) {
+        final updatedTasks = querySnapshot.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          final title = data['title'];
+          final date = data['date'].toDate();
+          return Task(title, date);
+        }).toList();
+
+        taskProvider.setTasks(updatedTasks);
+
+        // Qualquer outra lógica necessária quando as tarefas são atualizadas pode ser adicionada aqui.
+      });
+    } catch (e) {
+      print('Error fetching tasks: $e');
+    }
   }
 
   @override
@@ -75,40 +119,51 @@ class _HomeState extends State<Home> {
 
   Widget _buildBody() {
     if (_currentIndex == 0) {
-      final taskProvider = Provider.of<TaskProvider>(context);
-      return Stack(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 15,
-            ),
-            child: Column(
-              children: [
-                searchBox(),
-                Expanded(
-                  child: Consumer<TaskProvider>(
-                    builder: (context, taskProvider, child) {
-                      return ListView.builder(
-                        itemCount: taskProvider.tasks.length,
-                        itemBuilder: (context, index) {
-                          final task = taskProvider.tasks[index];
-                          return ToDoItem(
-                            todo: ToDo(id: task.title, todoText: task.title),
-                            onToDoChanged: _handleToDoChange,
-                            onDeleteItem: (id) => _deleteToDoItem(
-                                id, taskProvider), // Passa o taskProvider
-                          );
-                        },
-                      );
-                    },
+      return StreamBuilder<List<Task>>(
+          stream: Provider.of<TaskProvider>(context, listen: false).loadTasks(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Center(child: CircularProgressIndicator());
+            }
+            final tasks = snapshot.data;
+            if (tasks != null) {
+              return Stack(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 15,
+                    ),
+                    child: Column(
+                      children: [
+                        searchBox(),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: tasks.length,
+                            itemBuilder: (context, index) {
+                              final task = tasks[index];
+                              return ToDoItem(
+                                todo:
+                                    ToDo(id: task.title, todoText: task.title),
+                                onToDoChanged: _handleToDoChange,
+                                onDeleteItem: (id) => _deleteToDoItem(
+                                    id,
+                                    Provider.of<TaskProvider>(context,
+                                        listen: false)!),
+                              );
+                            },
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                )
-              ],
-            ),
-          ),
-        ],
-      );
+                ],
+              );
+            } else {
+              // Trate o caso em que 'tasks' é nulo, se necessário.
+              return Center(child: Text('Nenhuma tarefa encontrada.'));
+            }
+          });
     } else {
       return const CalendarScreen();
     }
@@ -120,20 +175,22 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void _deleteToDoItem(String id, TaskProvider taskProvider) {
-    setState(() {
-      taskProvider.removeTask(id);
-      _foundToDo.removeWhere((task) => task.id == id);
-    });
+  void _deleteToDoItem(String id, TaskProvider taskProvider) async {
+    await taskProvider.removeTask(id); // Espere a remoção ser concluída
+    await taskProvider.loadTasks(); // Atualize a lista após a remoção
   }
 
-  void _addToDoItem(String toDo) {
-    setState(() {
-      todosList.add(ToDo(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        todoText: toDo,
-      ));
-    });
+  void _addToDoItem(String toDo) async {
+    final newTask = Task(toDo, DateTime.now());
+
+    if (newTask.title.isNotEmpty) {
+      TaskProvider taskProvider =
+          Provider.of<TaskProvider>(context, listen: false);
+      await taskProvider.addTask(newTask);
+      await taskProvider
+          .loadTasks(); // Atualize a lista de tarefas após adicionar
+    }
+
     _todoController.clear();
   }
 

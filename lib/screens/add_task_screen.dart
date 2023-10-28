@@ -14,6 +14,15 @@ class AddTaskScreen extends StatefulWidget {
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final _taskController = TextEditingController();
   bool _taskError = false;
+
+  Future<void> _addTask(Task newTask) async {
+    TaskProvider taskProvider =
+        Provider.of<TaskProvider>(context, listen: false);
+    await taskProvider.addTask(newTask);
+    await taskProvider.loadTasks(); // Atualize a lista de tarefas após a adição
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
