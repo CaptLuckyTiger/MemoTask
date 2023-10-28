@@ -300,13 +300,14 @@ class _HomeState extends State<Home> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Página Inicial'),
-            onTap: () {
-              Navigator.pop(context);
-              // Implementar depois
-            },
-          ),
+              leading: const Icon(Icons.home),
+              title: const Text('Página Inicial'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Home()),
+                );
+              }),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Configurações'),
