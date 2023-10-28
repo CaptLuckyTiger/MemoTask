@@ -15,7 +15,7 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Memo Task'),
-      automaticallyImplyLeading: false, // Impede o botão de voltar
+        automaticallyImplyLeading: false, // Impede o botão de voltar
       ),
       body: Container(
         color: tdBGColor,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_todo_app/View/login_page.dart';
 import 'package:flutter_todo_app/screens/home.dart';
+import 'package:flutter_todo_app/services/auth_service.dart';
 import 'package:flutter_todo_app/widgets/taskprovider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +20,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TaskProvider()),
+        ChangeNotifierProvider(create: (context) => AuthService()),
       ],
       child: const MyApp(),
     ),
@@ -52,7 +54,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login', // Rota inicial, login aparecerá primeiro.
       routes: {
         '/login': (context) => LoginPage(),
-        '/home': (context) => const Home(),
+        '/home': (context) => Home(),
       },
     );
   }
