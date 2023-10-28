@@ -17,6 +17,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  initializeDateFormatting('pt_BR', null).then((_) {
+    var locale = const Locale('pt', 'BR');
+    Intl.defaultLocale = locale.toString();
+  });
+
   runApp(
     MultiProvider(
       providers: [
@@ -33,12 +38,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Inicializar data para Português Brasil
-    initializeDateFormatting('pt_BR', null).then((_) {
-      // Setando localidade português Brasil (pt_BR)
-      var locale = const Locale('pt', 'BR');
-      Intl.defaultLocale = locale.toString();
-    });
     // Inicializar data para Português Brasil
     initializeDateFormatting('pt_BR', null).then((_) {
       // Setando localidade português Brasil (pt_BR)
