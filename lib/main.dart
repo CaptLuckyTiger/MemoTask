@@ -36,6 +36,12 @@ class MyApp extends StatelessWidget {
       var locale = const Locale('pt', 'BR');
       Intl.defaultLocale = locale.toString();
     });
+    // Inicializar data para Português Brasil
+    initializeDateFormatting('pt_BR', null).then((_) {
+      // Setando localidade português Brasil (pt_BR)
+      var locale = const Locale('pt', 'BR');
+      Intl.defaultLocale = locale.toString();
+    });
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
 

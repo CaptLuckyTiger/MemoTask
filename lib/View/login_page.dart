@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../constants/colors.dart';
 import '../ViewModel/login_view_model.dart';
 
 class LoginPage extends StatelessWidget {
@@ -15,9 +15,10 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Memo Task'),
+      automaticallyImplyLeading: false, // Impede o botão de voltar
       ),
       body: Container(
-        color: const Color.fromARGB(255, 255, 255, 255),
+        color: tdBGColor,
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child: Form(
@@ -50,7 +51,8 @@ class LoginPage extends StatelessWidget {
                       final loginSuccessful =
                           await viewModel.login(username, password);
                       if (loginSuccessful) {
-                        Navigator.pushReplacementNamed(context, '/home');
+                        Navigator.pushReplacementNamed(context,
+                            '/home'); // se a senha estiver correta ira para proxima tela "home".
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
