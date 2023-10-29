@@ -21,4 +21,8 @@ class ToDo {
       ToDo(id: '03', todoText: 'Teste1', isDone: true, date: DateTime.now()),
     ];
   }
+
+  String getId() {
+    return id ?? ''; // Retorna o id, ou uma string vazia se for nulo
+  }
 }

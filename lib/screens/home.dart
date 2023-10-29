@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/services/auth_service.dart';
 import 'package:provider/provider.dart';
 import '../model/todo.dart';
 import '../constants/colors.dart';
@@ -8,7 +9,7 @@ import 'add_task_screen.dart';
 import 'calendar_screen.dart'; // Importe a tela de adição de tarefas
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../Model/task.dart'; // Agora vai
+import '../Model/Task.dart'; // Agora vai
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -47,8 +48,9 @@ class _HomeState extends State<Home> {
         final data = doc.data() as Map<String, dynamic>;
         final title = data['title'];
         final date = data['date'].toDate();
-        print('Fetched Task: $title, Date: $date');
-        return Task(title, date);
+        final id = doc.id; // Obtenha o ID do documento
+        print('Fetched Task: $title, Date: $date, ID: $id');
+        return Task(id, title, date);
       }).toList();
 
       taskProvider.setTasks(tasks);
@@ -57,13 +59,13 @@ class _HomeState extends State<Home> {
       _firestore.collection('tasks').snapshots().listen((querySnapshot) {
         final updatedTasks = querySnapshot.docs.map((doc) {
           final data = doc.data() as Map<String, dynamic>;
+          final id = doc.id; // Obtenha o ID do documento
           final title = data['title'];
           final date = data['date'].toDate();
-          return Task(title, date);
+          return Task(id, title, date); // Passe o ID corretamente
         }).toList();
 
         taskProvider.setTasks(updatedTasks);
-
         // Qualquer outra lógica necessária quando as tarefas são atualizadas pode ser adicionada aqui.
       });
     } catch (e) {
@@ -143,13 +145,14 @@ class _HomeState extends State<Home> {
                             itemBuilder: (context, index) {
                               final task = tasks[index];
                               return ToDoItem(
-                                todo:
-                                    ToDo(id: task.title, todoText: task.title),
+                                todo: ToDo(
+                                    id: task.id,
+                                    todoText: task.title), // use task.id
                                 onToDoChanged: _handleToDoChange,
                                 onDeleteItem: (id) => _deleteToDoItem(
                                     id,
                                     Provider.of<TaskProvider>(context,
-                                        listen: false)!),
+                                        listen: false)),
                               );
                             },
                           ),
@@ -175,22 +178,23 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void _deleteToDoItem(String id, TaskProvider taskProvider) async {
-    await taskProvider.removeTask(id); // Espere a remoção ser concluída
-    await taskProvider.loadTasks(); // Atualize a lista após a remoção
+  void _deleteToDoItem(String taskId, TaskProvider taskProvider) async {
+    await taskProvider.removeTask(taskId); // Espere a remoção ser concluída
+    taskProvider.loadTasks(); // Atualize a lista após a remoção
+    print('Executou o negócio que deleta?');
   }
 
   void _addToDoItem(String toDo) async {
-    final newTask = Task(toDo, DateTime.now());
+    String taskId = UniqueKey().toString(); // Gere um ID único
+    final newTask = Task(taskId, toDo, DateTime.now());
 
     if (newTask.title.isNotEmpty) {
       TaskProvider taskProvider =
           Provider.of<TaskProvider>(context, listen: false);
       await taskProvider.addTask(newTask);
       await taskProvider
-          .loadTasks(); // Atualize a lista de tarefas após adicionar
+          .loadTasks(); // Atualize a lista de tarefas após a adição
     }
-
     _todoController.clear();
   }
 
@@ -299,19 +303,28 @@ class _HomeState extends State<Home> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Página Inicial'),
-            onTap: () {
-              Navigator.pop(context);
-              // Implementar depois
-            },
-          ),
+              leading: const Icon(Icons.home),
+              title: const Text('Página Inicial'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Home()),
+                );
+              }),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Configurações'),
             onTap: () {
               Navigator.pop(context);
               // Implementar depois
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Sair'),
+            onTap: () {
+              Navigator.pop(context);
+              context.read<AuthService>().logout();
             },
           ),
         ],

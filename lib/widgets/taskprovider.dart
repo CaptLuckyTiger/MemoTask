@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import '../Model/task.dart';
+import '../Model/Task.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -28,6 +28,8 @@ class TaskProvider with ChangeNotifier {
   }
 
   Future<void> removeTask(String taskId) async {
+    print(
+        'Excluindo a tarefa com o ID: $taskId'); // Imprime o ID da tarefa a ser excluída
     try {
       await _firestore.collection('tasks').doc(taskId).delete();
     } catch (e) {
@@ -39,6 +41,7 @@ class TaskProvider with ChangeNotifier {
     return _firestore.collection('tasks').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         return Task(
+          doc.id, // ID
           doc["title"],
           doc["date"].toDate(),
         );
