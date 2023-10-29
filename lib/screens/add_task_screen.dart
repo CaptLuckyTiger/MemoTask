@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../Model/Task.dart';
 import '../constants/colors.dart';
 import '../widgets/taskprovider.dart';
+import 'home.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({Key? key}) : super(key: key);
@@ -66,7 +67,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             await taskProvider.addTask(newTask);
             await taskProvider
                 .loadTasks(); // Atualize a lista de tarefas após a adição
-            Navigator.pop(context);
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => const Home()));
           } else {
             setState(() {
               _taskError = true;
