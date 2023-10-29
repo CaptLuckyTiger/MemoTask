@@ -25,10 +25,14 @@ class _HomeState extends State<Home> {
   int _currentIndex = 0;
   final FirebaseFirestore _firestore =
       FirebaseFirestore.instance; // Define the Firestore instance
+  void _resetFilter() {
+    setState(() {
+      _foundToDo = [];
+    });
+  }
 
   @override
   void initState() {
-    _foundToDo = todosList;
     _fetchTasksFromFirestore();
     super.initState();
     Provider.of<TaskProvider>(context, listen: false).loadTasks();
@@ -108,13 +112,16 @@ class _HomeState extends State<Home> {
                 );
 
                 if (newTask != null) {
-                  _addToDoItem(newTask);
+                  _addToDoItem(
+                      newTask); // Adicione a chamada para atualizar a lista
+                  _fetchTasksFromFirestore(); // Carregue as tarefas novamente após adicionar uma nova
                 }
               },
               elevation: 10,
               child: const Icon(Icons.add),
             )
           : null,
+
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
@@ -122,51 +129,59 @@ class _HomeState extends State<Home> {
   Widget _buildBody() {
     if (_currentIndex == 0) {
       return StreamBuilder<List<Task>>(
-          stream: Provider.of<TaskProvider>(context, listen: false).loadTasks(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Center(child: CircularProgressIndicator());
-            }
-            final tasks = snapshot.data;
-            if (tasks != null) {
-              return Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 15,
-                    ),
-                    child: Column(
-                      children: [
-                        searchBox(),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: tasks.length,
-                            itemBuilder: (context, index) {
-                              final task = tasks[index];
-                              return ToDoItem(
-                                todo: ToDo(
-                                    id: task.id,
-                                    todoText: task.title), // use task.id
-                                onToDoChanged: _handleToDoChange,
-                                onDeleteItem: (id) => _deleteToDoItem(
-                                    id,
-                                    Provider.of<TaskProvider>(context,
-                                        listen: false)),
-                              );
-                            },
-                          ),
-                        )
-                      ],
-                    ),
+        stream: Provider.of<TaskProvider>(context, listen: false).loadTasks(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+          final tasks = snapshot.data;
+          if (tasks != null) {
+            List<ToDo> displayedTodos = _foundToDo.isNotEmpty
+                ? _foundToDo
+                : tasks.map((task) {
+                    return ToDo(
+                      id: task.id,
+                      todoText: task.title,
+                    );
+                  }).toList();
+
+            return Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 15,
                   ),
-                ],
-              );
-            } else {
-              // Trate o caso em que 'tasks' é nulo, se necessário.
-              return Center(child: Text('Nenhuma tarefa encontrada.'));
-            }
-          });
+                  child: Column(
+                    children: [
+                      searchBox(),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: displayedTodos.length,
+                          itemBuilder: (context, index) {
+                            final todo = displayedTodos[index];
+                            return ToDoItem(
+                              todo: todo,
+                              onToDoChanged: _handleToDoChange,
+                              onDeleteItem: (id) => _deleteToDoItem(
+                                id,
+                                Provider.of<TaskProvider>(context,
+                                    listen: false),
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return Center(child: Text('Nenhuma tarefa encontrada.'));
+          }
+        },
+      );
     } else {
       return const CalendarScreen();
     }
@@ -181,7 +196,10 @@ class _HomeState extends State<Home> {
   void _deleteToDoItem(String taskId, TaskProvider taskProvider) async {
     await taskProvider.removeTask(taskId); // Espere a remoção ser concluída
     taskProvider.loadTasks(); // Atualize a lista após a remoção
-    print('Executou o negócio que deleta?');
+    setState(() {
+      _runFilter(
+          ""); // Chame _runFilter com uma string vazia para exibir todas as tarefas
+    });
   }
 
   void _addToDoItem(String toDo) async {
@@ -191,30 +209,47 @@ class _HomeState extends State<Home> {
     if (newTask.title.isNotEmpty) {
       TaskProvider taskProvider =
           Provider.of<TaskProvider>(context, listen: false);
+
+      // Adicione a nova tarefa à lista _foundToDo e atualize o estado
+      setState(() {
+        _foundToDo.add(ToDo(id: newTask.id, todoText: newTask.title));
+      });
+
       await taskProvider.addTask(newTask);
-      await taskProvider
-          .loadTasks(); // Atualize a lista de tarefas após a adição
+
+      _searchController.text = ''; // Limpa o texto da caixa de pesquisa
+
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Home()));
     }
-    _todoController.clear();
   }
 
   void _runFilter(String enteredKeyword) {
-    List<ToDo> results = [];
+    List<Task> allTasks =
+        Provider.of<TaskProvider>(context, listen: false).tasks;
+    List<Task> results = [];
 
     if (enteredKeyword.isEmpty) {
-      results = todosList;
+      results = allTasks;
     } else {
-      results = todosList
-          .where((item) => item.todoText!
-              .toLowerCase()
-              .contains(enteredKeyword.toLowerCase()))
+      results = allTasks
+          .where((task) =>
+              task.title.toLowerCase().contains(enteredKeyword.toLowerCase()))
           .toList();
+      print(enteredKeyword);
     }
 
+    List<ToDo> foundTodos = results.map((task) {
+      return ToDo(id: task.id, todoText: task.title);
+    }).toList();
+
     setState(() {
-      _foundToDo = results;
+      _foundToDo = foundTodos;
     });
   }
+
+  TextEditingController _searchController =
+      TextEditingController(); // Adicione esta variável à classe
 
   Widget searchBox() {
     return Container(
@@ -223,6 +258,7 @@ class _HomeState extends State<Home> {
         color: tdBGColor,
       ),
       child: TextField(
+        controller: _searchController,
         onChanged: (value) => _runFilter(value),
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.all(0),
