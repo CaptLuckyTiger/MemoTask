@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/services/auth_service.dart';
 import 'package:provider/provider.dart';
 import '../model/todo.dart';
 import '../constants/colors.dart';
 import '../widgets/taskprovider.dart';
+import '../widgets/themeprovider.dart';
 import '../widgets/todo_item.dart';
 import 'add_task_screen.dart';
 import 'calendar_screen.dart'; // Importe a tela de adição de tarefas
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../Model/task.dart'; // Agora vai
+import '../Model/Task.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -22,8 +24,8 @@ class _HomeState extends State<Home> {
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
   int _currentIndex = 0;
-  final FirebaseFirestore _firestore =
-      FirebaseFirestore.instance; // Define the Firestore instance
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool isDarkMode = false;
 
   @override
   void initState() {
@@ -47,8 +49,9 @@ class _HomeState extends State<Home> {
         final data = doc.data() as Map<String, dynamic>;
         final title = data['title'];
         final date = data['date'].toDate();
-        print('Fetched Task: $title, Date: $date');
-        return Task(title, date);
+        final id = doc.id; // Obtenha o ID do documento
+        print('Fetched Task: $title, Date: $date, ID: $id');
+        return Task(id, title, date);
       }).toList();
 
       taskProvider.setTasks(tasks);
@@ -57,13 +60,13 @@ class _HomeState extends State<Home> {
       _firestore.collection('tasks').snapshots().listen((querySnapshot) {
         final updatedTasks = querySnapshot.docs.map((doc) {
           final data = doc.data() as Map<String, dynamic>;
+          final id = doc.id; // Obtenha o ID do documento
           final title = data['title'];
           final date = data['date'].toDate();
-          return Task(title, date);
+          return Task(id, title, date); // Passe o ID corretamente
         }).toList();
 
         taskProvider.setTasks(updatedTasks);
-
         // Qualquer outra lógica necessária quando as tarefas são atualizadas pode ser adicionada aqui.
       });
     } catch (e) {
@@ -73,10 +76,13 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final darkModeProvider = Provider.of<DarkModeProvider>(context);
+    // Defina o estado do switch com base no estado do provider
+    isDarkMode = darkModeProvider.isDarkMode;
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(isDarkMode),
       body: _buildBody(),
-      drawer: _buildDrawer(), // Adicione o Drawer aqui
+      drawer: _buildDrawer(isDarkMode), // Adicione o Drawer aqui
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -143,13 +149,14 @@ class _HomeState extends State<Home> {
                             itemBuilder: (context, index) {
                               final task = tasks[index];
                               return ToDoItem(
-                                todo:
-                                    ToDo(id: task.title, todoText: task.title),
+                                todo: ToDo(
+                                    id: task.id,
+                                    todoText: task.title), // use task.id
                                 onToDoChanged: _handleToDoChange,
                                 onDeleteItem: (id) => _deleteToDoItem(
                                     id,
                                     Provider.of<TaskProvider>(context,
-                                        listen: false)!),
+                                        listen: false)),
                               );
                             },
                           ),
@@ -175,22 +182,23 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void _deleteToDoItem(String id, TaskProvider taskProvider) async {
-    await taskProvider.removeTask(id); // Espere a remoção ser concluída
-    await taskProvider.loadTasks(); // Atualize a lista após a remoção
+  void _deleteToDoItem(String taskId, TaskProvider taskProvider) async {
+    await taskProvider.removeTask(taskId); // Espere a remoção ser concluída
+    taskProvider.loadTasks(); // Atualize a lista após a remoção
+    print('Executou o negócio que deleta?');
   }
 
   void _addToDoItem(String toDo) async {
-    final newTask = Task(toDo, DateTime.now());
+    String taskId = UniqueKey().toString(); // Gere um ID único
+    final newTask = Task(taskId, toDo, DateTime.now());
 
     if (newTask.title.isNotEmpty) {
       TaskProvider taskProvider =
           Provider.of<TaskProvider>(context, listen: false);
       await taskProvider.addTask(newTask);
       await taskProvider
-          .loadTasks(); // Atualize a lista de tarefas após adicionar
+          .loadTasks(); // Atualize a lista de tarefas após a adição
     }
-
     _todoController.clear();
   }
 
@@ -239,12 +247,22 @@ class _HomeState extends State<Home> {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(bool isDarkMode) {
     return AppBar(
-      backgroundColor: tdBlue,
+      backgroundColor: isDarkMode
+          ? Colors.black
+          : tdBlue, // Use cores diferentes com base no modo claro/escuro
       elevation: 0,
       title: const Text('MemoTask'),
       actions: [
+        // Adicione o botão de alternância aqui
+        Switch(
+            value: isDarkMode,
+            onChanged: (value) {
+              final darkModeProvider =
+                  Provider.of<DarkModeProvider>(context, listen: false);
+              darkModeProvider.toggleDarkMode();
+            }),
         SizedBox(
           height: 40,
           width: 40,
@@ -260,61 +278,67 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildDrawer() {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: tdBlue,
+  Widget _buildDrawer(bool isDarkMode) {
+    final theme = isDarkMode ? ThemeData.dark() : ThemeData.light();
+
+    return Theme(
+      data: theme,
+      child: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.black : tdBlue,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 80,
+                    width: 80,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(40),
+                      child: Image.asset('assets/images/avatar.jpeg'),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Seu Nome',
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white : tdBGColor,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
+                    'email@example.com',
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white : tdBGColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 80,
-                  width: 80,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: Image.asset('assets/images/avatar.jpeg'),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Seu Nome',
-                  style: TextStyle(
-                    color: tdBGColor,
-                    fontSize: 18,
-                  ),
-                ),
-                const Text(
-                  'email@example.com',
-                  style: TextStyle(
-                    color: tdBGColor,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+            ListTile(
+                leading: const Icon(Icons.home),
+                title: const Text('Página Inicial'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Home()),
+                  );
+                }),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Sair'),
+              onTap: () {
+                Navigator.pop(context);
+                context.read<AuthService>().logout();
+              },
             ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Página Inicial'),
-            onTap: () {
-              Navigator.pop(context);
-              // Implementar depois
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Configurações'),
-            onTap: () {
-              Navigator.pop(context);
-              // Implementar depois
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
