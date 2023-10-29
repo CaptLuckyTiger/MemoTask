@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../Model/task.dart';
+import '../Model/Task.dart';
 import '../constants/colors.dart';
 import '../widgets/taskprovider.dart';
 
@@ -57,12 +57,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          Task newTask = Task(_taskController.text, DateTime.now());
+          String taskId = UniqueKey().toString(); // Gere um ID único
+          Task newTask = Task(taskId, _taskController.text, DateTime.now());
 
           if (newTask.title.isNotEmpty) {
             TaskProvider taskProvider =
                 Provider.of<TaskProvider>(context, listen: false);
-            taskProvider.addTask(newTask);
+            await taskProvider.addTask(newTask);
+            await taskProvider
+                .loadTasks(); // Atualize a lista de tarefas após a adição
             Navigator.pop(context);
           } else {
             setState(() {

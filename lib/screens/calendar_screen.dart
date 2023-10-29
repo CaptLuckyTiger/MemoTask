@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/screens/tasks_screen_details.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../Model/task.dart';
+import '../Model/Task.dart';
 import '../widgets/taskprovider.dart';
 
 class CalendarScreen extends StatefulWidget {
