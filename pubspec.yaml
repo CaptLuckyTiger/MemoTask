@@ -39,10 +39,7 @@ dependencies:
   table_calendar: ^3.0.9
   provider: ^6.0.5
   firebase_auth: ^4.12.0
-<<<<<<< HEAD
   flutter_colorpicker: ^1.0.3
-=======
->>>>>>> 5e4b22427f444db18a596f634645de2a44a0b269
 dev_dependencies:
   flutter_test:
     sdk: flutter
