@@ -5,6 +5,7 @@ import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/services/auth_service.dart';
 import 'package:flutter_todo_app/widgets/auth_check.dart';
 import 'package:flutter_todo_app/widgets/taskprovider.dart';
+import 'package:flutter_todo_app/widgets/themeprovider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +28,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => TaskProvider()),
         ChangeNotifierProvider(create: (context) => AuthService()),
+        ChangeNotifierProvider(create: (context) => DarkModeProvider()),
       ],
       child: const MyApp(),
     ),

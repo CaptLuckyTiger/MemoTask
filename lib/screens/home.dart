@@ -4,12 +4,13 @@ import 'package:provider/provider.dart';
 import '../model/todo.dart';
 import '../constants/colors.dart';
 import '../widgets/taskprovider.dart';
+import '../widgets/themeprovider.dart';
 import '../widgets/todo_item.dart';
 import 'add_task_screen.dart';
 import 'calendar_screen.dart'; // Importe a tela de adição de tarefas
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../Model/Task.dart'; // Agora vai
+import '../Model/Task.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -23,6 +24,8 @@ class _HomeState extends State<Home> {
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
   int _currentIndex = 0;
+  
+   bool isDarkMode = false;
   final FirebaseFirestore _firestore =
       FirebaseFirestore.instance; // Define the Firestore instance
   void _resetFilter() {
@@ -79,10 +82,13 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final darkModeProvider = Provider.of<DarkModeProvider>(context);
+    // Defina o estado do switch com base no estado do provider
+    isDarkMode = darkModeProvider.isDarkMode;
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(isDarkMode),
       body: _buildBody(),
-      drawer: _buildDrawer(), // Adicione o Drawer aqui
+      drawer: _buildDrawer(isDarkMode), // Adicione o Drawer aqui
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -279,12 +285,22 @@ class _HomeState extends State<Home> {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(bool isDarkMode) {
     return AppBar(
-      backgroundColor: tdBlue,
+      backgroundColor: isDarkMode
+          ? Colors.black
+          : tdBlue, // Use cores diferentes com base no modo claro/escuro
       elevation: 0,
       title: const Text('MemoTask'),
       actions: [
+        // Adicione o botão de alternância aqui
+        Switch(
+            value: isDarkMode,
+            onChanged: (value) {
+              final darkModeProvider =
+                  Provider.of<DarkModeProvider>(context, listen: false);
+              darkModeProvider.toggleDarkMode();
+            }),
         SizedBox(
           height: 40,
           width: 40,
@@ -300,70 +316,67 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildDrawer() {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: tdBlue,
+  Widget _buildDrawer(bool isDarkMode) {
+    final theme = isDarkMode ? ThemeData.dark() : ThemeData.light();
+
+    return Theme(
+      data: theme,
+      child: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.black : tdBlue,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 80,
+                    width: 80,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(40),
+                      child: Image.asset('assets/images/avatar.jpeg'),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Seu Nome',
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white : tdBGColor,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
+                    'email@example.com',
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white : tdBGColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 80,
-                  width: 80,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: Image.asset('assets/images/avatar.jpeg'),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Seu Nome',
-                  style: TextStyle(
-                    color: tdBGColor,
-                    fontSize: 18,
-                  ),
-                ),
-                const Text(
-                  'email@example.com',
-                  style: TextStyle(
-                    color: tdBGColor,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Página Inicial'),
+            ListTile(
+                leading: const Icon(Icons.home),
+                title: const Text('Página Inicial'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Home()),
+                  );
+                }),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Sair'),
               onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Home()),
-                );
-              }),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Configurações'),
-            onTap: () {
-              Navigator.pop(context);
-              // Implementar depois
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Sair'),
-            onTap: () {
-              Navigator.pop(context);
-              context.read<AuthService>().logout();
-            },
-          ),
-        ],
+                Navigator.pop(context);
+                context.read<AuthService>().logout();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
