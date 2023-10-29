@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "457489517146",
+    "project_id": "memotask-trabmobile",
+    "storage_bucket": "memotask-trabmobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457489517146:android:fbc22f6672b21677bd2663",
+        "android_client_info": {
+          "package_name": "com.example.flutter_todo_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCETY09nvUyRJVCxDU1z_IGHWo4IXtLtEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

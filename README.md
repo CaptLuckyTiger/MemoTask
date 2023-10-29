@@ -1,16 +1,37 @@
-# memotask
+# **MemoTask**
 
-A new Flutter project.
+Esse aplicativo foi pensando para o usuario que precise fazer uma anotação, ou lista de necessidades, ou afazeres
+Ele conta com um sistema login para manter a privacidade e seguro.
 
-## Getting Started
+Funcionalidade-> criar uma lista, ou uma simples anotação, marcar algum item da lista se já foi completo e riscar da lista
+BUGS-> crash entre login e home 
 
-This project is a starting point for a Flutter application.
+Login e verificações usando Forms, como impedir login em branco com avisos, usuario incorreto, caracter minimo da senha não alcançado
 
-A few resources to get you started if this is your first Flutter project:
+-  Consertar o bug da navegação do login para tela inicial.
+  
+## Membros da equipe
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+**[Mizael Simão](https://github.com/CaptLuckyTiger)**: Login e verificações.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+**[Antony de Paula](https://github.com/AntonydePS)**: Funções referentes as telas iniciais e de tarefas.
+
+## Instruções de Instalação
+
+-  Baixar o repositório.
+-  Abrir a pasta no VScode.
+-  Esperar o VScode sincronizar as dependências básicas (caso não sincronize, execute **flutter run** no terminal).
+-  Executar o app.
+
+
+## Atualizações
+
+Atualização BUG consertado e resolvido.
+
+-  Calendario ainda não implementado.
+-  Menu no homem não implementado.
+
+Atualização 
+
+- Calendario implementado.
+- Menu Lateral Implementado.
