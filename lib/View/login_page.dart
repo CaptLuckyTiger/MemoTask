@@ -129,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check),
+                      Icon(Icons.login),
                       Padding(
                         padding: EdgeInsets.all(16.0),
                         child: Text(

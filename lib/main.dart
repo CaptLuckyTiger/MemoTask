@@ -59,12 +59,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-class AppState extends ChangeNotifier {
-  String someData = 'Hello from Provider';
-
-  void updateData(String newData) {
-    someData = newData;
-    notifyListeners();
-  }
-}
