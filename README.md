@@ -12,7 +12,7 @@ Login e verificações usando Forms, como impedir login em branco com avisos, us
   
 ## Membros da equipe
 
-**[Mizael Simão](https://github.com/CaptLuckyTiger)**: Login e verificações.
+**[Mizael Simão](https://github.com/CaptLuckyTiger)**: Login e verificações, calendario.
 
 **[Antony de Paula](https://github.com/AntonydePS)**: Funções referentes as telas iniciais e de tarefas.
 
@@ -35,3 +35,15 @@ Atualização
 
 - Calendario implementado.
 - Menu Lateral Implementado.
+
+## Atualizações
+
+Atualização BUG consertado e resolvido.
+
+-  pesquisas com problema, firebase não salva as tarefas criadas, autenticação do usuario.
+-  tema não salva.
+
+Atualização 
+
+-Provider implementado, Firabse implementado, Pesquisa consertada, firebase sicronizado, novos usuarios são criados e registrados, .
+- tema aplica modo escuro.
