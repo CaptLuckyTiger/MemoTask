@@ -45,5 +45,5 @@ Atualização BUG consertado e resolvido.
 
 Atualização 
 
--Provider implementado, Firabse implementado, Pesquisa consertada, firebase sicronizado, novos usuarios são criados e registrados, .
+ -Provider implementado, Firabse implementado, Pesquisa consertada, firebase sicronizado, novos usuarios são criados e registrados.
 - tema aplica modo escuro.
