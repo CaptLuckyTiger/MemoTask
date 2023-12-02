@@ -1,8 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_todo_app/services/auth_service.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -46,6 +47,7 @@ class _LoginPageState extends State<LoginPage> {
   login() async {
     try {
       await context.read<AuthService>().login(email.text, senha.text);
+      saveUserDataToSharedPreferences(); // Salvar dados do usuário após login
     } on AuthException catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.message)));
@@ -59,9 +61,27 @@ class _LoginPageState extends State<LoginPage> {
             senha.text,
             nome.text,
           );
+      saveUserDataToSharedPreferences(); // Salvar dados do usuário após registro
     } on AuthException catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+// Função para salvar dados do usuário no SharedPreferences
+  saveUserDataToSharedPreferences() async {
+    try {
+      // Recuperar informações do usuário do Firebase
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', user.uid);
+        await prefs.setString('userName', user.displayName ?? '');
+        await prefs.setString('userEmail', user.email ?? '');
+      }
+    } catch (e) {
+      print('Erro ao salvar dados do usuário: $e');
     }
   }
 

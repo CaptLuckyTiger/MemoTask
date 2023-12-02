@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/services/auth_service.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../model/todo.dart';
 import '../constants/colors.dart';
 import '../widgets/taskprovider.dart';
@@ -27,6 +28,9 @@ class _HomeState extends State<Home> {
   bool isDarkMode = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  String _userName = 'Seu Nome';
+  String _userEmail = 'email@example.com';
+
   void _resetFilter() {
     setState(() {
       _foundToDo = [];
@@ -52,6 +56,16 @@ class _HomeState extends State<Home> {
     _fetchTasksFromFirestore();
     super.initState();
     Provider.of<TaskProvider>(context, listen: false).loadTasks();
+    _loadUserData();
+  }
+
+  // Carrega os dados do usuário do SharedPreferences
+  void _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('userName') ?? 'Seu Nome';
+      _userEmail = prefs.getString('userEmail') ?? 'email@example.com';
+    });
   }
 
   @override
@@ -347,14 +361,14 @@ class _HomeState extends State<Home> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Seu Nome',
+                    _userName, // Mostra o nome do usuário aqui
                     style: TextStyle(
                       color: isDarkMode ? Colors.white : tdBGColor,
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    'email@example.com',
+                    _userEmail, // Mostra o email do usuário aqui
                     style: TextStyle(
                       color: isDarkMode ? Colors.white : tdBGColor,
                       fontSize: 14,
