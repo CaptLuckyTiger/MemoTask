@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_todo_app/View/login_page.dart';
 import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/services/auth_service.dart';
 import 'package:flutter_todo_app/widgets/auth_check.dart';

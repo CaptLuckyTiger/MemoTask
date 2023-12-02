@@ -1,6 +1,6 @@
 class UserModel {
-  final String username;
-  final String password;
+  final String? name;
+  final String? email;
 
-  UserModel(this.username, this.password);
+  UserModel(this.name, this.email);
 }

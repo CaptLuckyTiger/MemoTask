@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
   final email = TextEditingController();
   final senha = TextEditingController();
+  final nome = TextEditingController();
 
   bool isLogin = true;
   late String titulo;
@@ -53,7 +54,11 @@ class _LoginPageState extends State<LoginPage> {
 
   registrar() async {
     try {
-      await context.read<AuthService>().registrar(email.text, senha.text);
+      await context.read<AuthService>().registrar(
+            email.text,
+            senha.text,
+            nome.text,
+          );
     } on AuthException catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.message)));
@@ -68,83 +73,104 @@ class _LoginPageState extends State<LoginPage> {
           padding: EdgeInsets.only(top: 100),
           child: Form(
             key: formKey,
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(
-                titulo,
-                style: TextStyle(
-                  fontSize: 35,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -1.5,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(24),
-                child: TextFormField(
-                  controller: email,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Email',
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  titulo,
+                  style: TextStyle(
+                    fontSize: 35,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -1.5,
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Email está incorrreto';
-                    }
-                    return null;
-                  },
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(24),
-                child: TextFormField(
-                  controller: senha,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Senha',
+                if (!isLogin) // Show name field only when registering
+                  Padding(
+                    padding: EdgeInsets.all(24),
+                    child: TextFormField(
+                      controller: nome,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Nome',
+                      ),
+                      keyboardType: TextInputType.name,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Coloque um nome';
+                        }
+                        return null;
+                      },
+                    ),
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'informar senha';
-                    } else if (value.length < 6) {
-                      return 'A senha deve conter o minimo de 6 caracteres';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(24),
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      if (isLogin) {
-                        login();
-                      } else {
-                        registrar();
+                Padding(
+                  padding: EdgeInsets.all(24),
+                  child: TextFormField(
+                    controller: email,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Email',
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Email está incorreto';
                       }
-                    }
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.login),
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          actionButton,
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      )
-                    ],
+                      return null;
+                    },
                   ),
                 ),
-              ),
-              TextButton(
+                Padding(
+                  padding: EdgeInsets.all(24),
+                  child: TextFormField(
+                    controller: senha,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Senha',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'informar senha';
+                      } else if (value.length < 6) {
+                        return 'A senha deve conter o minimo de 6 caracteres';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(24),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        if (isLogin) {
+                          login();
+                        } else {
+                          registrar();
+                        }
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.login),
+                        Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            actionButton,
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                TextButton(
                   onPressed: () => setFormAction(!isLogin),
-                  child: Text(toggleButton))
-            ]),
+                  child: Text(toggleButton),
+                )
+              ],
+            ),
           ),
         ),
       ),

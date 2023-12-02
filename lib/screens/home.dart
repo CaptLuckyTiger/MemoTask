@@ -24,8 +24,27 @@ class _HomeState extends State<Home> {
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
   int _currentIndex = 0;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool isDarkMode = false;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  void _resetFilter() {
+    setState(() {
+      _foundToDo = [];
+    });
+  }
+
+  void _editToDoItem(String taskId, String updatedTaskText) async {
+    TaskProvider taskProvider =
+        Provider.of<TaskProvider>(context, listen: false);
+    final updatedTask = Task(taskId, updatedTaskText, DateTime.now());
+
+    if (updatedTask.title.isNotEmpty) {
+      await taskProvider.editTask(
+          taskId, updatedTask); // Chame a função de edição
+      await taskProvider
+          .loadTasks(); // Atualize a lista de tarefas após a edição
+    }
+  }
 
   @override
   void initState() {
@@ -90,13 +109,23 @@ class _HomeState extends State<Home> {
             _currentIndex = index;
           });
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
+            icon: Icon(
+              Icons.list,
+              color: isDarkMode
+                  ? const Color.fromARGB(255, 20, 20, 20)
+                  : null, // Aplique a cor do ícone no modo escuro
+            ),
             label: 'Tarefas',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
+            icon: Icon(
+              Icons.calendar_month,
+              color: isDarkMode
+                  ? const Color.fromARGB(255, 20, 20, 20)
+                  : null, // Aplique a cor do ícone no modo escuro
+            ),
             label: 'Calendário',
           ),
         ],
@@ -124,8 +153,12 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildBody() {
+    final theme = isDarkMode ? ThemeData.dark() : ThemeData.light();
+
     if (_currentIndex == 0) {
-      return StreamBuilder<List<Task>>(
+      return Theme(
+        data: theme,
+        child: StreamBuilder<List<Task>>(
           stream: Provider.of<TaskProvider>(context, listen: false).loadTasks(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -142,7 +175,7 @@ class _HomeState extends State<Home> {
                     ),
                     child: Column(
                       children: [
-                        searchBox(),
+                        searchBox(isDarkMode),
                         Expanded(
                           child: ListView.builder(
                             itemCount: tasks.length,
@@ -150,13 +183,18 @@ class _HomeState extends State<Home> {
                               final task = tasks[index];
                               return ToDoItem(
                                 todo: ToDo(
-                                    id: task.id,
-                                    todoText: task.title), // use task.id
+                                  id: task.id,
+                                  todoText: task.title,
+                                  date: task.date,
+                                ),
                                 onToDoChanged: _handleToDoChange,
                                 onDeleteItem: (id) => _deleteToDoItem(
-                                    id,
-                                    Provider.of<TaskProvider>(context,
-                                        listen: false)),
+                                  id,
+                                  Provider.of<TaskProvider>(context,
+                                      listen: false),
+                                ),
+                                onEditItem: (id, newText) => _editToDoItem(
+                                    id, newText), // Chamada para edição
                               );
                             },
                           ),
@@ -167,10 +205,11 @@ class _HomeState extends State<Home> {
                 ],
               );
             } else {
-              // Trate o caso em que 'tasks' é nulo, se necessário.
               return Center(child: Text('Nenhuma tarefa encontrada.'));
             }
-          });
+          },
+        ),
+      );
     } else {
       return const CalendarScreen();
     }
@@ -220,19 +259,23 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Widget searchBox() {
+  Widget searchBox(bool isDarkMode) {
+    final isDarkThemeInput = isDarkMode ? Colors.white : tdBlack;
+    final isDarkThemeHint = isDarkMode ? Colors.white : tdGrey;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: const BoxDecoration(
-        color: tdBGColor,
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.black : tdBGColor,
       ),
       child: TextField(
         onChanged: (value) => _runFilter(value),
-        decoration: const InputDecoration(
+        style: TextStyle(color: isDarkThemeInput),
+        decoration: InputDecoration(
           contentPadding: EdgeInsets.all(0),
           prefixIcon: Icon(
             Icons.search,
-            color: tdBlack,
+            color: isDarkThemeInput,
             size: 20,
           ),
           prefixIconConstraints: BoxConstraints(
@@ -241,7 +284,7 @@ class _HomeState extends State<Home> {
           ),
           border: InputBorder.none,
           hintText: 'Pesquisar',
-          hintStyle: TextStyle(color: tdGrey),
+          hintStyle: TextStyle(color: isDarkThemeHint),
         ),
       ),
     );

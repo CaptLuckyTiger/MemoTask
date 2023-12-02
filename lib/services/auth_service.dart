@@ -11,6 +11,10 @@ class AuthService extends ChangeNotifier {
   User? usuario;
   bool isLoading = true;
 
+  bool get isAuthenticated {
+    return usuario != null; // Returns true if user is not null
+  }
+
   AuthService() {
     _authCheck();
   }
@@ -23,15 +27,16 @@ class AuthService extends ChangeNotifier {
     });
   }
 
-  _getUser() {
+  Future<void> _getUser() async {
     usuario = _auth.currentUser;
     notifyListeners();
   }
 
-  registrar(String email, String senha) async {
+  Future<void> registrar(String email, String senha, String name) async {
     try {
       await _auth.createUserWithEmailAndPassword(email: email, password: senha);
-      _getUser();
+      await _updateUserName(name); // Update user's display name
+      await _getUser();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         throw AuthException('A senha é muito fraca');
@@ -41,21 +46,35 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  login(String email, String senha) async {
+  Future<void> login(String email, String senha) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: senha);
-      _getUser();
+      await _getUser();
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
+      if (e.code == 'user-not-found') {
         throw AuthException('Email não encontrado. Cadastre-se');
-      } else if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
+      } else if (e.code == 'wrong-password') {
         throw AuthException('Senha incorreta. Tente novamente');
       }
     }
   }
 
-  logout() async {
+  Future<void> logout() async {
     await _auth.signOut();
-    _getUser();
+    await _getUser();
+  }
+
+  Future<void> _updateUserName(String name) async {
+    await _auth.currentUser!.updateProfile(displayName: name);
+  }
+
+  Future<User?> getUserData() async {
+    try {
+      await _getUser();
+      return usuario;
+    } catch (e) {
+      print('Error fetching user data: $e');
+      return null;
+    }
   }
 }

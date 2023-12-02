@@ -28,15 +28,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget build(BuildContext context) {
     final taskProvider = Provider.of<TaskProvider>(context);
 
-    print("Selected Day: $_selectedDay");
-    print("Tasks Count: ${taskProvider.tasks.length}");
-
     List<Task> tasksForSelectedDay = taskProvider.tasks
         .where(
             (task) => task.date != null && isSameDay(task.date!, _selectedDay))
         .toList();
-
-    print("Tasks for Selected Day: ${tasksForSelectedDay.length}");
 
     return Scaffold(
       body: Center(
@@ -59,7 +54,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 },
                 onDaySelected: (selectedDay, focusedDay) {
                   setState(() {
-                    _selectedDay = selectedDay; // Atualiza a data selecionada
+                    _selectedDay = selectedDay;
                   });
                 },
                 availableCalendarFormats: const {
@@ -67,6 +62,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   CalendarFormat.week: 'Semana',
                 },
                 locale: 'pt_BR',
+                calendarStyle: const CalendarStyle(
+                  todayDecoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  selectedDecoration: BoxDecoration(
+                    color: Colors.deepPurple,
+                    shape: BoxShape.circle,
+                  ),
+                  selectedTextStyle: TextStyle(color: Colors.white),
+                  todayTextStyle: TextStyle(color: Colors.white),
+                  weekendTextStyle: TextStyle(color: Colors.red),
+                  outsideTextStyle: TextStyle(color: Colors.grey),
+                  outsideDaysVisible: false,
+                  markersMaxCount: 5,
+                ),
               ),
               // Exibe as tarefas do dia selecionado
               if (tasksForSelectedDay.isNotEmpty)
