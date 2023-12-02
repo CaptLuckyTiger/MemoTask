@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../model/todo.dart';
+import '../model/todo.dart'; // Importe a biblioteca para usar o File
 import '../constants/colors.dart';
 
 class ToDoItem extends StatefulWidget {
@@ -38,9 +38,26 @@ class _ToDoItemState extends State<ToDoItem> {
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         tileColor: Colors.white,
-        leading: Icon(
-          _isDone ? Icons.check_box : Icons.check_box_outline_blank,
-          color: tdBlue,
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: _isDone ? tdBlue : Colors.transparent,
+            border: Border.all(
+              color: tdBlue,
+              width: 2,
+            ),
+          ),
+          child: Center(
+            child: _isDone
+                ? Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 24,
+                  )
+                : null,
+          ),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
