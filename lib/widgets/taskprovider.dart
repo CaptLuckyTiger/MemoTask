@@ -43,6 +43,18 @@ class TaskProvider with ChangeNotifier {
     }
   }
 
+  Future<void> editTask(String taskId, Task updatedTask) async {
+    try {
+      await _firestore.collection('tasks').doc(taskId).update({
+        'title': updatedTask.title,
+        'date': updatedTask.date,
+      });
+      notifyListeners();
+    } catch (e) {
+      print('Error editing task: $e');
+    }
+  }
+
   Future<void> removeTask(String taskId) async {
     try {
       // Recupere a tarefa que será removida
