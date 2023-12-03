@@ -9,7 +9,7 @@ import '../widgets/taskprovider.dart';
 import '../widgets/themeprovider.dart';
 import '../widgets/todo_item.dart';
 import 'add_task_screen.dart';
-import 'calendar_screen.dart';
+import 'calendar_screen.dart'; // Importe a tela de adição de tarefas
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Model/Task.dart';
@@ -29,11 +29,14 @@ class _HomeState extends State<Home> {
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
   int _currentIndex = 0;
+  bool isDarkMode = false;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   File? localAvatarImage; // Armazena a referência do arquivo da imagem
   String? localAvatarImagePath; // Caminho da imagem do avatar
 
-  bool isDarkMode = false;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String _userName = 'Seu Nome';
+  String _userEmail = 'email@example.com';
 
   void _resetFilter() {
     setState(() {
@@ -41,12 +44,36 @@ class _HomeState extends State<Home> {
     });
   }
 
+  void _editToDoItem(String taskId, String updatedTaskText) async {
+    TaskProvider taskProvider =
+        Provider.of<TaskProvider>(context, listen: false);
+    final updatedTask = Task(taskId, updatedTaskText, DateTime.now());
+
+    if (updatedTask.title.isNotEmpty) {
+      await taskProvider.editTask(
+          taskId, updatedTask); // Chame a função de edição
+      await taskProvider
+          .loadTasks(); // Atualize a lista de tarefas após a edição
+    }
+  }
+
   @override
   void initState() {
+    _foundToDo = todosList;
     _fetchTasksFromFirestore();
-    _loadAvatarImagePath(); // Carrega o caminho da imagem do avatar ao iniciar
     super.initState();
     Provider.of<TaskProvider>(context, listen: false).loadTasks();
+    _loadUserData();
+    _loadAvatarImagePath(); // Carrega o caminho da imagem do avatar ao iniciar
+  }
+
+  // Carrega os dados do usuário do SharedPreferences
+  void _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('userName') ?? 'Seu Nome';
+      _userEmail = prefs.getString('userEmail') ?? 'email@example.com';
+    });
   }
 
   Future<void> _loadAvatarImagePath() async {
@@ -87,25 +114,25 @@ class _HomeState extends State<Home> {
         final data = doc.data() as Map<String, dynamic>;
         final title = data['title'];
         final date = data['date'].toDate();
-        final id = doc.id;
-        final imagePath = data['imagePath'] ?? '';
-        print(
-            'Fetched Task: $title, Date: $date, ID: $id, ImagePath: $imagePath');
-        return Task(id, title, date, imagePath: imagePath);
+        final id = doc.id; // Obtenha o ID do documento
+        print('Fetched Task: $title, Date: $date, ID: $id');
+        return Task(id, title, date);
       }).toList();
 
       taskProvider.setTasks(tasks);
 
+      // Agora, configure um Stream para ouvir atualizações em tempo real do Firestore
       _firestore.collection('tasks').snapshots().listen((querySnapshot) {
         final updatedTasks = querySnapshot.docs.map((doc) {
           final data = doc.data() as Map<String, dynamic>;
-          final id = doc.id;
+          final id = doc.id; // Obtenha o ID do documento
           final title = data['title'];
           final date = data['date'].toDate();
-          return Task(id, title, date);
+          return Task(id, title, date); // Passe o ID corretamente
         }).toList();
 
         taskProvider.setTasks(updatedTasks);
+        // Qualquer outra lógica necessária quando as tarefas são atualizadas pode ser adicionada aqui.
       });
     } catch (e) {
       print('Error fetching tasks: $e');
@@ -115,12 +142,12 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final darkModeProvider = Provider.of<DarkModeProvider>(context);
+    // Defina o estado do switch com base no estado do provider
     isDarkMode = darkModeProvider.isDarkMode;
-
     return Scaffold(
       appBar: _buildAppBar(isDarkMode),
       body: _buildBody(),
-      drawer: _buildDrawer(isDarkMode),
+      drawer: _buildDrawer(isDarkMode), // Adicione o Drawer aqui
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -128,30 +155,39 @@ class _HomeState extends State<Home> {
             _currentIndex = index;
           });
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
+            icon: Icon(
+              Icons.list,
+              color: isDarkMode
+                  ? const Color.fromARGB(255, 20, 20, 20)
+                  : null, // Aplique a cor do ícone no modo escuro
+            ),
             label: 'Tarefas',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
+            icon: Icon(
+              Icons.calendar_month,
+              color: isDarkMode
+                  ? const Color.fromARGB(255, 20, 20, 20)
+                  : null, // Aplique a cor do ícone no modo escuro
+            ),
             label: 'Calendário',
           ),
         ],
       ),
+
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
               onPressed: () async {
                 final newTask = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AddTaskScreen(),
-                  ),
+                      builder: (context) => const AddTaskScreen()),
                 );
 
                 if (newTask != null) {
                   _addToDoItem(newTask);
-                  _fetchTasksFromFirestore();
                 }
               },
               elevation: 10,
@@ -163,60 +199,62 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildBody() {
-    if (_currentIndex == 0) {
-      return StreamBuilder<List<Task>>(
-        stream: Provider.of<TaskProvider>(context, listen: false).loadTasks(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-          final tasks = snapshot.data;
-          if (tasks != null) {
-            List<ToDo> displayedTodos = _foundToDo.isNotEmpty
-                ? _foundToDo
-                : tasks.map((task) {
-                    return ToDo(
-                      id: task.id,
-                      todoText: task.title,
-                    );
-                  }).toList();
+    final theme = isDarkMode ? ThemeData.dark() : ThemeData.light();
 
-            return Stack(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 15,
+    if (_currentIndex == 0) {
+      return Theme(
+        data: theme,
+        child: StreamBuilder<List<Task>>(
+          stream: Provider.of<TaskProvider>(context, listen: false).loadTasks(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Center(child: CircularProgressIndicator());
+            }
+            final tasks = snapshot.data;
+            if (tasks != null) {
+              return Stack(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 15,
+                    ),
+                    child: Column(
+                      children: [
+                        searchBox(isDarkMode),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: tasks.length,
+                            itemBuilder: (context, index) {
+                              final task = tasks[index];
+                              return ToDoItem(
+                                todo: ToDo(
+                                  id: task.id,
+                                  todoText: task.title,
+                                  date: task.date,
+                                ),
+                                onToDoChanged: _handleToDoChange,
+                                onDeleteItem: (id) => _deleteToDoItem(
+                                  id,
+                                  Provider.of<TaskProvider>(context,
+                                      listen: false),
+                                ),
+                                onEditItem: (id, newText) => _editToDoItem(
+                                    id, newText), // Chamada para edição
+                              );
+                            },
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      searchBox(),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: displayedTodos.length,
-                          itemBuilder: (context, index) {
-                            final todo = displayedTodos[index];
-                            return ToDoItem(
-                              todo: todo,
-                              onToDoChanged: _handleToDoChange,
-                              onDeleteItem: (id) => _deleteToDoItem(
-                                id,
-                                Provider.of<TaskProvider>(context,
-                                    listen: false),
-                              ),
-                            );
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            );
-          } else {
-            return Center(child: Text('Nenhuma tarefa encontrada.'));
-          }
-        },
+                ],
+              );
+            } else {
+              return Center(child: Text('Nenhuma tarefa encontrada.'));
+            }
+          },
+        ),
       );
     } else {
       return const CalendarScreen();
@@ -230,74 +268,60 @@ class _HomeState extends State<Home> {
   }
 
   void _deleteToDoItem(String taskId, TaskProvider taskProvider) async {
-    await taskProvider.removeTask(taskId);
-    taskProvider.loadTasks();
-    setState(() {
-      _runFilter("");
-    });
+    await taskProvider.removeTask(taskId); // Espere a remoção ser concluída
+    taskProvider.loadTasks(); // Atualize a lista após a remoção
+    print('Executou o negócio que deleta?');
   }
 
   void _addToDoItem(String toDo) async {
-    String taskId = UniqueKey().toString();
+    String taskId = UniqueKey().toString(); // Gere um ID único
     final newTask = Task(taskId, toDo, DateTime.now());
 
     if (newTask.title.isNotEmpty) {
       TaskProvider taskProvider =
           Provider.of<TaskProvider>(context, listen: false);
-
-      setState(() {
-        _foundToDo.add(ToDo(id: newTask.id, todoText: newTask.title));
-      });
-
       await taskProvider.addTask(newTask);
-
-      _searchController.text = '';
-
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => Home()));
+      await taskProvider
+          .loadTasks(); // Atualize a lista de tarefas após a adição
     }
+    _todoController.clear();
   }
 
   void _runFilter(String enteredKeyword) {
-    List<Task> allTasks =
-        Provider.of<TaskProvider>(context, listen: false).tasks;
-    List<Task> results = [];
+    List<ToDo> results = [];
 
     if (enteredKeyword.isEmpty) {
-      results = allTasks;
+      results = todosList;
     } else {
-      results = allTasks
-          .where((task) =>
-              task.title.toLowerCase().contains(enteredKeyword.toLowerCase()))
+      results = todosList
+          .where((item) => item.todoText!
+              .toLowerCase()
+              .contains(enteredKeyword.toLowerCase()))
           .toList();
-      print(enteredKeyword);
     }
 
-    List<ToDo> foundTodos = results.map((task) {
-      return ToDo(id: task.id, todoText: task.title);
-    }).toList();
-
     setState(() {
-      _foundToDo = foundTodos;
+      _foundToDo = results;
     });
   }
 
-  TextEditingController _searchController = TextEditingController();
+  Widget searchBox(bool isDarkMode) {
+    final isDarkThemeInput = isDarkMode ? Colors.white : tdBlack;
+    final isDarkThemeHint = isDarkMode ? Colors.white : tdGrey;
 
-  Widget searchBox() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: const BoxDecoration(
-        color: tdBGColor,
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.black : tdBGColor,
       ),
       child: TextField(
-        controller: _searchController,
         onChanged: (value) => _runFilter(value),
-        decoration: const InputDecoration(
+        style: TextStyle(color: isDarkThemeInput),
+        decoration: InputDecoration(
           contentPadding: EdgeInsets.all(0),
           prefixIcon: Icon(
             Icons.search,
-            color: tdBlack,
+            color: isDarkThemeInput,
             size: 20,
           ),
           prefixIconConstraints: BoxConstraints(
@@ -306,7 +330,7 @@ class _HomeState extends State<Home> {
           ),
           border: InputBorder.none,
           hintText: 'Pesquisar',
-          hintStyle: TextStyle(color: tdGrey),
+          hintStyle: TextStyle(color: isDarkThemeHint),
         ),
       ),
     );
@@ -314,18 +338,20 @@ class _HomeState extends State<Home> {
 
   AppBar _buildAppBar(bool isDarkMode) {
     return AppBar(
-      backgroundColor: isDarkMode ? Colors.black : tdBlue,
+      backgroundColor: isDarkMode
+          ? Colors.black
+          : tdBlue, // Use cores diferentes com base no modo claro/escuro
       elevation: 0,
       title: const Text('MemoTask'),
       actions: [
+        // Adicione o botão de alternância aqui
         Switch(
-          value: isDarkMode,
-          onChanged: (value) {
-            final darkModeProvider =
-                Provider.of<DarkModeProvider>(context, listen: false);
-            darkModeProvider.toggleDarkMode();
-          },
-        ),
+            value: isDarkMode,
+            onChanged: (value) {
+              final darkModeProvider =
+                  Provider.of<DarkModeProvider>(context, listen: false);
+              darkModeProvider.toggleDarkMode();
+            }),
         GestureDetector(
           onTap: () => _pickAvatarImage(),
           child: SizedBox(
@@ -371,14 +397,14 @@ class _HomeState extends State<Home> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Seu Nome',
+                    _userName, // Mostra o nome do usuário aqui
                     style: TextStyle(
                       color: isDarkMode ? Colors.white : tdBGColor,
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    'email@example.com',
+                    _userEmail, // Mostra o email do usuário aqui
                     style: TextStyle(
                       color: isDarkMode ? Colors.white : tdBGColor,
                       fontSize: 14,
@@ -388,15 +414,14 @@ class _HomeState extends State<Home> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Página Inicial'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Home()),
-                );
-              },
-            ),
+                leading: const Icon(Icons.home),
+                title: const Text('Página Inicial'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Home()),
+                  );
+                }),
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Sair'),
