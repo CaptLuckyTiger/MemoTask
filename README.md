@@ -47,3 +47,10 @@ Atualização
 
  -Provider implementado, Firabse implementado, Pesquisa consertada, firebase sicronizado, novos usuarios são criados e registrados.
 - tema aplica modo escuro.
+
+- ## Atualizações
+
+- tarefas agora podem ser editada, nome de usuario e email é compartilhado com o drawer após o registro ou login, o usuario pode enviar fotos dessa forma utulizando o recurso nativo, foi feito uso de API SharedPreferences para resolver problemas e compartilhar um valor chave para que o nome e email fosse mostrado no drawer.
+
+- ## Problemas
+ Usuario ainda continuam vendo tarefas um do outro, tema não foi aplicado para todo o app, problema de cache com foto, e usuario registrado ou logado o usuario tera que deslogar e relogar para que sua conta apareça no drawer com seu nome e email.
